@@ -1,4 +1,11 @@
+using DePaso.Entidades;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<DePasoAppContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConexionSA"))
+);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -20,10 +27,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
