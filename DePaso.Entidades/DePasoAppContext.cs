@@ -61,13 +61,13 @@ public partial class DePasoAppContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__EnvioEst__3214EC07F52EABDD");
 
-            entity.HasIndex(e => e.EnvioId, "UQ__EnvioEst__D024E23E3313BBA8").IsUnique();
+            entity.HasIndex(e => e.EnvioId, "UQ__EnvioEst__D024E23E3313BBA8");
 
             entity.Property(e => e.Fecha)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
-            entity.HasOne(d => d.Envio).WithOne(p => p.EnvioEstadoHistoria)
+            entity.HasOne(d => d.Envio).WithMany(p => p.EnvioEstadoHistoria)
                 .HasForeignKey<EnvioEstadoHistoria>(d => d.EnvioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EnvioEstadoHistoria_Envio");

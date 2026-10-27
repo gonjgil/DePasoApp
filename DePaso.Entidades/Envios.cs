@@ -39,7 +39,7 @@ public partial class Envios
 
     public virtual Asignaciones? Asignaciones { get; set; }
 
-    public virtual EnvioEstadoHistoria? EnvioEstadoHistoria { get; set; }
+    public virtual ICollection<EnvioEstadoHistoria> EnvioEstadoHistoria { get; set; } = new List<EnvioEstadoHistoria>();
 
     public virtual Usuarios Usuario { get; set; } = null!;
 }
