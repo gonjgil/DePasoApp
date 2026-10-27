@@ -1,0 +1,45 @@
+@model RegistrarseViewModel
+@{
+    ViewData["Title"] = "Crear cuenta";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <h1>Crear cuenta</h1>
+        <form asp-action="Registrarse" method="post" novalidate>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Nombre" class="form-label">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" autocomplete="given-name" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Apellido" class="form-label">Apellido</label>
+                    <input asp-for="Apellido" class="form-control" autocomplete="family-name" />
+                    <span asp-validation-for="Apellido" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" type="email" autocomplete="username" placeholder="tu@email.com" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Contrasena" class="form-label">Contraseña</label>
+                <input asp-for="Contrasena" class="form-control" autocomplete="new-password" placeholder="Mínimo 8 caracteres" />
+                <span asp-validation-for="Contrasena" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ConfirmarContrasena" class="form-label">Confirmar contraseña</label>
+                <input asp-for="ConfirmarContrasena" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmarContrasena" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Crear cuenta</button>
+        </form>
+        <p class="mt-3">¿Ya tenés cuenta? <a asp-action="Ingresar">Ingresar</a></p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
