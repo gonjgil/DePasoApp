@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<DePasoAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ConexionSA"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
 );
 
 // Add services to the container.

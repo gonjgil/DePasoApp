@@ -89,8 +89,7 @@ namespace DePaso.Entidades.Migrations
                     b.HasKey("Id")
                         .HasName("PK__EnvioEst__3214EC07F52EABDD");
 
-                    b.HasIndex(new[] { "EnvioId" }, "UQ__EnvioEst__D024E23E3313BBA8")
-                        .IsUnique();
+                    b.HasIndex(new[] { "EnvioId" }, "UQ__EnvioEst__D024E23E3313BBA8");
 
                     b.ToTable("EnvioEstadoHistoria");
                 });
@@ -347,7 +346,7 @@ namespace DePaso.Entidades.Migrations
             modelBuilder.Entity("DePaso.Entidades.EnvioEstadoHistoria", b =>
                 {
                     b.HasOne("DePaso.Entidades.Envios", "Envio")
-                        .WithOne("EnvioEstadoHistoria")
+                        .WithMany("EnvioEstadoHistoria")
                         .HasForeignKey("DePaso.Entidades.EnvioEstadoHistoria", "EnvioId")
                         .IsRequired()
                         .HasConstraintName("FK_EnvioEstadoHistoria_Envio");
