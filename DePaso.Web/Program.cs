@@ -1,4 +1,6 @@
 using DePaso.Entidades;
+using DePaso.Logica;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DePasoAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
 );
+
+builder.Services.AddScoped<UsuarioServicio>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Cuenta/Ingresar";
+        options.AccessDeniedPath = "/Cuenta/Ingresar";
+    });
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -23,6 +34,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
