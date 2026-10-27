@@ -348,7 +348,7 @@ namespace DePaso.Entidades.Migrations
                 {
                     b.HasOne("DePaso.Entidades.Envios", "Envio")
                         .WithMany("EnvioEstadoHistoria")
-                        .HasForeignKey("DePaso.Entidades.EnvioEstadoHistoria", "EnvioId")
+                        .HasForeignKey("EnvioId")
                         .IsRequired()
                         .HasConstraintName("FK_EnvioEstadoHistoria_Envio");
 

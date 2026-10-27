@@ -68,7 +68,7 @@ public partial class DePasoAppContext : DbContext
                 .HasColumnType("datetime");
 
             entity.HasOne(d => d.Envio).WithMany(p => p.EnvioEstadoHistoria)
-                .HasForeignKey<EnvioEstadoHistoria>(d => d.EnvioId)
+                .HasForeignKey(d => d.EnvioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EnvioEstadoHistoria_Envio");
         });
