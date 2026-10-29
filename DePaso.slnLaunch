@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "DePasoApp",
+    "Projects": [
+      {
+        "Path": "DePaso.Web\\DePaso.Web.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DePaso.UsuariosAPI\\DePaso.UsuariosAPI.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

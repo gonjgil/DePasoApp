@@ -1,17 +1,20 @@
-using DePaso.Entidades;
-using DePaso.Logica;
+using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<DePasoAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
-);
+builder.Services.AddHttpClient<UsuariosApiClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiUsuariosUrl"]
+        ?? throw new InvalidOperationException(
+            "No se configuró ApiUsuariosUrl."));
+});
 
-builder.Services.AddScoped<UsuarioServicio>();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(
+    CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Cuenta/Ingresar";
@@ -39,7 +42,9 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
+app.MapControllerRoute(
+    name: "default", 
+    pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();
