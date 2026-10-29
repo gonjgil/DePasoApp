@@ -1,6 +1,5 @@
 using System.Security.Claims;
-using DePaso.Entidades;
-using DePaso.Logica;
+using DePaso.Web.Services;
 using DePaso.Web.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -11,11 +10,11 @@ namespace DePaso.Web.Controllers;
 
 public class CuentaController : Controller
 {
-    private readonly UsuarioServicio _usuarios;
+    private readonly UsuariosApiClient _usuariosApi;
 
-    public CuentaController(UsuarioServicio usuarios)
+    public CuentaController(UsuariosApiClient usuariosApi)
     {
-        _usuarios = usuarios;
+        _usuariosApi = usuariosApi;
     }
 
     [AllowAnonymous]
@@ -40,14 +39,21 @@ public class CuentaController : Controller
             return View(modelo);
         }
 
-        var usuario = await _usuarios.Ingresar(modelo.Email, modelo.Contrasena);
+        var usuario = await _usuariosApi.IngresarAsync(
+            modelo.Email, 
+            modelo.Contrasena);
+        
         if (usuario == null)
         {
-            ModelState.AddModelError(string.Empty, "Email o contraseña incorrectos.");
+            ModelState.AddModelError(
+                string.Empty,
+                "Email o contraseña incorrectos.");
+           
             return View(modelo);
         }
 
         await IniciarSesion(usuario);
+
         return RedirectToAction("Index", "Home");
     }
 
@@ -66,21 +72,31 @@ public class CuentaController : Controller
     [AllowAnonymous]
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Registrarse(RegistrarseViewModel modelo)
+    public async Task<IActionResult> Registrarse(
+        RegistrarseViewModel modelo)
     {
         if (!ModelState.IsValid)
         {
             return View(modelo);
         }
 
-        var (usuario, error) = await _usuarios.Registrar(modelo.Nombre, modelo.Apellido, modelo.Email, modelo.Contrasena);
-        if (error != null)
+        var resultado = await _usuariosApi.RegistrarseAsync(
+            modelo.Nombre, 
+            modelo.Apellido, 
+            modelo.Email, 
+            modelo.Contrasena);
+
+        if (resultado.Error is not null)
         {
-            ModelState.AddModelError(nameof(modelo.Email), error);
+            ModelState.AddModelError(
+                nameof(modelo.Email),
+                resultado.Error);
+
             return View(modelo);
         }
 
-        await IniciarSesion(usuario!);
+        await IniciarSesion(resultado.Usuario!);
+
         return RedirectToAction("Index", "Home");
     }
 
@@ -89,19 +105,30 @@ public class CuentaController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Salir()
     {
-        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        await HttpContext.SignOutAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
         return RedirectToAction(nameof(Ingresar));
     }
 
-    private async Task IniciarSesion(Usuarios usuario)
+    private async Task IniciarSesion(UsuarioApiResponse usuario)
     {
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-            new(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
-            new(ClaimTypes.Email, usuario.Email)
+            new(ClaimTypes.NameIdentifier, 
+            usuario.Id.ToString()),
+            
+            new(ClaimTypes.Name,
+            $"{usuario.Nombre} {usuario.Apellido}"),
+            
+            new(ClaimTypes.Email, 
+            usuario.Email)
         };
-        var identidad = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var identidad = new ClaimsIdentity(
+            claims, 
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(identidad));
