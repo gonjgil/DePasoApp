@@ -1,5 +1,7 @@
 using DePaso.Entidades;
 using DePaso.Logica;
+using DePaso.Logica.helpers;
+using DePaso.Logica.servicios;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,10 @@ builder.Services.AddDbContext<DePasoAppContext>(options =>
 );
 
 builder.Services.AddScoped<UsuarioServicio>();
+
+builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
+builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
+builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
