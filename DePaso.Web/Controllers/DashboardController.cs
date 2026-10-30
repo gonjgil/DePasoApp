@@ -32,7 +32,7 @@ namespace DePaso.Web.Controllers
                 return await CerrarSesionYVolverAIngresar();
             }
 
-            return View(resumen);
+            return View("Dashboard", resumen);
         }
 
         private async Task<IActionResult> CerrarSesionYVolverAIngresar()

@@ -208,7 +208,6 @@ namespace DePaso.Logica.servicios
                         continue;
                     }
 
-                    // La salida de hoy que ya pasó no es "próxima".
                     if (i == 0 && viaje.HoraSalida <= horaActual)
                     {
                         continue;
