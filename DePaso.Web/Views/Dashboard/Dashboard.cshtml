@@ -1,0 +1,100 @@
+﻿@model DePaso.Logica.Dtos.DashboardResumenDto
+@using System.Globalization
+@using DePaso.Logica.enums
+@{
+    ViewData["Title"] = "Inicio";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+
+    var urlNuevoEnvio = Url.Content("~/Envios/Nuevo");
+    var urlNuevoViaje = Url.Content("~/Viajes/Nuevo");
+    var urlOportunidades = Url.Content("~/Oportunidades");
+}
+
+<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+
+<div class="dp-dashboard">
+    <div class="dp-header">
+        <div>
+            <h1 class="dp-title">Hola, @Model.NombreUsuario</h1>
+            <p class="dp-subtitle">Esto pasa con tus viajes y envíos.</p>
+        </div>
+        <div class="dp-actions">
+            <a class="btn btn-outline-dark" href="@urlNuevoEnvio">Nuevo envío</a>
+            <a class="btn btn-dark" href="@urlNuevoViaje">Nuevo viaje</a>
+        </div>
+    </div>
+
+    <div class="dp-stats">
+        <div class="dp-card dp-stat" data-testid="stat-viajes">
+            <span class="dp-stat-label">Próximos viajes</span>
+            <span class="dp-stat-value">@Model.ProximosViajes</span>
+        </div>
+        <div class="dp-card dp-stat" data-testid="stat-envios">
+            <span class="dp-stat-label">Envíos pendientes</span>
+            <span class="dp-stat-value">@Model.EnviosPendientes</span>
+        </div>
+        <div class="dp-card dp-stat" data-testid="stat-oportunidades">
+            <span class="dp-stat-label">Oportunidades</span>
+            <span class="dp-stat-value">@Model.Oportunidades</span>
+        </div>
+        <div class="dp-card dp-stat dp-stat-highlight" data-testid="stat-potencial">
+            <span class="dp-stat-label">Potencial del mes</span>
+            <span class="dp-stat-value">@Moneda(Model.PotencialMes)</span>
+            <span class="dp-stat-note">Estimación, no ganancia efectiva</span>
+        </div>
+    </div>
+
+    <div class="dp-panels">
+        <section class="dp-card dp-panel">
+            <h2 class="dp-panel-title">Próximos viajes</h2>
+            @if (Model.ListaProximosViajes.Count == 0)
+            {
+                <p class="dp-empty">No tenés viajes activos programados.</p>
+            }
+            else
+            {
+                <ul class="dp-list">
+                    @foreach (var viaje in Model.ListaProximosViajes)
+                    {
+                        <li class="dp-list-item">
+                            <div>
+                                <div class="dp-item-title">@viaje.Origen &rarr; @viaje.Destino</div>
+                                <div class="dp-item-meta">
+                                    @viaje.DiasTexto &middot; @viaje.HoraSalida.ToString("HH:mm") &ndash; @viaje.HoraLlegada.ToString("HH:mm")
+                                    &middot; próxima salida @viaje.ProximaFecha.ToString("dd/MM", es)
+                                </div>
+                            </div>
+                            <span class="dp-badge dp-badge-activo">Activo</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="dp-card dp-panel">
+            <h2 class="dp-panel-title">Envíos pendientes</h2>
+            @if (Model.ListaEnviosPendientes.Count == 0)
+            {
+                <p class="dp-empty">No tenés envíos pendientes.</p>
+            }
+            else
+            {
+                <ul class="dp-list">
+                    @foreach (var envio in Model.ListaEnviosPendientes)
+                    {
+                        var claseEstado = envio.Estado == EstadoEnvio.BuscandoConductor ? "dp-badge-buscando" : "dp-badge-asignado";
+                        <li class="dp-list-item">
+                            <div>
+                                <div class="dp-item-title">@envio.Origen &rarr; @envio.Destino</div>
+                                <div class="dp-item-meta">@envio.Descripcion &middot; @Moneda(envio.Monto)</div>
+                            </div>
+                            <span class="dp-badge @claseEstado">@envio.EstadoTexto</span>
+                        </li>
+                    }
+                </ul>
+            }
+            <a class="btn btn-outline-dark dp-panel-link" href="@urlOportunidades">Ver oportunidades</a>
+        </section>
+    </div>
+</div>
