@@ -2,20 +2,29 @@ using DePaso.Entidades;
 using DePaso.Logica;
 using DePaso.Logica.helpers;
 using DePaso.Logica.servicios;
+using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<DePasoAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
-);
+builder.Services.AddHttpClient<UsuariosApiClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiUsuariosUrl"]
+        ?? throw new InvalidOperationException(
+            "No se configuró ApiUsuariosUrl."));
+});
 
-builder.Services.AddScoped<UsuarioServicio>();
 
 builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
 builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
 builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
+
+builder.Services.AddDbContext<DePasoAppContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
+);
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -45,7 +54,9 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
+app.MapControllerRoute(
+    name: "default", 
+    pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();

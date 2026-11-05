@@ -120,6 +120,8 @@ public partial class DePasoAppContext : DbContext
 
         modelBuilder.Entity<Usuarios>(entity =>
         {
+         
+
             entity.HasKey(e => e.Id).HasName("PK__Usuarios__3214EC07E7F20049");
 
             entity.HasIndex(e => e.Email, "UQ__Usuarios__A9D10534338279AE").IsUnique();
