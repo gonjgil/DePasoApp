@@ -23,7 +23,7 @@ public class CuentaController : Controller
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         return View(new IngresarViewModel());
@@ -53,8 +53,7 @@ public class CuentaController : Controller
         }
 
         await IniciarSesion(usuario);
-
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Dashboard");
     }
 
     [AllowAnonymous]
@@ -63,7 +62,7 @@ public class CuentaController : Controller
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Dashboard");
         }
 
         return View(new RegistrarseViewModel());
@@ -97,7 +96,7 @@ public class CuentaController : Controller
 
         await IniciarSesion(resultado.Usuario!);
 
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction("Index", "Dashboard");
     }
 
     [Authorize]

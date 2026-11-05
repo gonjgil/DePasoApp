@@ -1,0 +1,161 @@
+﻿.dp-dashboard {
+    padding: 1rem 0 3rem;
+}
+
+.dp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.dp-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin: 0;
+    color: #0b1220;
+}
+
+.dp-subtitle {
+    margin: .15rem 0 0;
+    color: #5b6475;
+    font-size: .9rem;
+}
+
+.dp-actions {
+    display: flex;
+    gap: .5rem;
+}
+
+.dp-card {
+    background: #fff;
+    border: 1px solid #e6e8ee;
+    border-radius: 14px;
+    padding: 1.1rem 1.25rem;
+}
+
+.dp-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.dp-stat {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
+.dp-stat-label {
+    color: #5b6475;
+    font-size: .85rem;
+}
+
+.dp-stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0b1220;
+    line-height: 1.1;
+}
+
+.dp-stat-note {
+    font-size: .72rem;
+    color: #2f7a55;
+}
+
+.dp-stat-highlight {
+    background: #dcf5e8;
+    border-color: #bfe8d1;
+}
+
+    .dp-stat-highlight .dp-stat-label, .dp-stat-highlight .dp-stat-value {
+        color: #14633f;
+    }
+
+.dp-panels {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.dp-panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: .75rem;
+}
+
+.dp-panel-link {
+    margin-top: .75rem;
+}
+
+.dp-empty {
+    color: #5b6475;
+    font-size: .9rem;
+    margin: 0;
+}
+
+.dp-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dp-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: .7rem 0;
+    border-bottom: 1px solid #eef0f4;
+}
+
+    .dp-list-item:last-child {
+        border-bottom: 0;
+    }
+
+.dp-item-title {
+    font-weight: 600;
+    font-size: .92rem;
+}
+
+.dp-item-meta {
+    color: #5b6475;
+    font-size: .78rem;
+}
+
+.dp-badge {
+    font-size: .72rem;
+    font-weight: 600;
+    padding: .2rem .6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.dp-badge-activo {
+    background: #dcf5e8;
+    color: #14633f;
+}
+
+.dp-badge-buscando {
+    background: #fde5d0;
+    color: #9a4a0c;
+}
+
+.dp-badge-asignado {
+    background: #fff;
+    color: #3b4254;
+    border: 1px solid #d5d9e2;
+}
+
+@media (max-width: 900px) {
+    .dp-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dp-panels {
+        grid-template-columns: 1fr;
+    }
+}

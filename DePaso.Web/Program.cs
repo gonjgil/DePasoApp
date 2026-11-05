@@ -1,5 +1,10 @@
+using DePaso.Entidades;
+using DePaso.Logica;
+using DePaso.Logica.helpers;
+using DePaso.Logica.servicios;
 using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,8 +18,15 @@ builder.Services.AddHttpClient<UsuariosApiClient>(client =>
 });
 
 
-builder.Services.AddAuthentication(
-    CookieAuthenticationDefaults.AuthenticationScheme)
+builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
+builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
+builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
+
+builder.Services.AddDbContext<DePasoAppContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
+);
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Cuenta/Ingresar";
