@@ -1,4 +1,4 @@
-﻿namespace DePaso.UsuariosAPI.Models;
+﻿namespace DePaso.Api.Models;
 
 public class UsuarioLogin
 {

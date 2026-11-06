@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DePaso.UsuariosAPI.Models
+namespace DePaso.Api.Models
 {
     public class UsuarioRegistro
     {
@@ -18,6 +18,5 @@ namespace DePaso.UsuariosAPI.Models
         [MinLength(8, ErrorMessage = "Mínimo 8 caracteres.")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
-        
     }
 }

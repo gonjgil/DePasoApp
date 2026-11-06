@@ -3,7 +3,7 @@
     "Name": "DePasoApp",
     "Projects": [
       {
-        "Path": "DePaso.UsuariosAPI\\DePaso.UsuariosAPI.csproj",
+        "Path": "DePaso.Api\\DePaso.Api.csproj",
         "Action": "Start"
       },
       {
