@@ -7,6 +7,7 @@
     string Moneda(decimal monto) => monto.ToString("C0", es);
 
     var urlNuevoEnvio = Url.Content("~/Envios/Nuevo");
+    var urlMisEnvios = Url.Content("~/Envios");
     var urlNuevoViaje = Url.Content("~/Viajes/Nuevo");
     var urlOportunidades = Url.Content("~/Oportunidades");
 }
@@ -21,6 +22,7 @@
         </div>
         <div class="dp-actions">
             <a class="btn btn-outline-dark" href="@urlNuevoEnvio">Nuevo envío</a>
+            <a class="btn btn-outline-dark" href="@urlMisEnvios">Mis envíos</a>
             <a class="btn btn-dark" href="@urlNuevoViaje">Nuevo viaje</a>
         </div>
     </div>
@@ -61,7 +63,8 @@
                             <div>
                                 <div class="dp-item-title">@viaje.Origen &rarr; @viaje.Destino</div>
                                 <div class="dp-item-meta">
-                                    @viaje.DiasTexto &middot; @viaje.HoraSalida.ToString("HH:mm") &ndash; @viaje.HoraLlegada.ToString("HH:mm")
+                                    @viaje.DiasTexto &middot; @viaje.HoraSalida.ToString("HH:mm") &ndash;
+                                    @viaje.HoraLlegada.ToString("HH:mm")
                                     &middot; próxima salida @viaje.ProximaFecha.ToString("dd/MM", es)
                                 </div>
                             </div>
@@ -83,7 +86,8 @@
                 <ul class="dp-list">
                     @foreach (var envio in Model.ListaEnviosPendientes)
                     {
-                        var claseEstado = envio.Estado == EstadoEnvio.BuscandoConductor ? "dp-badge-buscando" : "dp-badge-asignado";
+                        var claseEstado = envio.Estado == EstadoEnvio.BuscandoConductor ? "dp-badge-buscando" :
+              "dp-badge-asignado";
                         <li class="dp-list-item">
                             <div>
                                 <div class="dp-item-title">@envio.Origen &rarr; @envio.Destino</div>

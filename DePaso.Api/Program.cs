@@ -10,8 +10,10 @@ builder.Services.AddDbContext<DePasoAppContext>(options =>
 );
 
 builder.Services.AddScoped<UsuarioServicio>();
+builder.Services.AddScoped<EnvioServicio>();
 
 builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 

@@ -1,0 +1,63 @@
+@model List<DePaso.Web.Models.EnvioApiResponse>
+@{
+    ViewData["Title"] = "Mis envíos";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1>Mis envíos</h1>
+            <a asp-action="Nuevo" class="btn btn-primary">Nuevo envío</a>
+        </div>
+
+        @if (Model.Count == 0)
+        {
+            <div class="alert alert-light border">
+                Todavía no tenés envíos cargados.
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Fecha límite</th>
+                            <th>Peso</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var envio in Model)
+                        {
+                            <tr>
+                                <td>@envio.OrigenDir</td>
+                                <td>@envio.DestinoDir</td>
+                                <td>@envio.FechaLimite.ToString("dd/MM/yyyy")</td>
+                                <td>@envio.PesoKg kg</td>
+                                <td>$@envio.Monto</td>
+                                <td>@envio.Estado</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Editar" asp-route-id="@envio.Id"
+                                           class="btn btn-sm btn-outline-primary">Editar</a>
+                                        <form asp-action="Borrar" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@envio.Id" />
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('¿Seguro que querés borrar este envío?');">Borrar</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
