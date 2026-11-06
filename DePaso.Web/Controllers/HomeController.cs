@@ -8,9 +8,15 @@ namespace DePaso.Web.Controllers;
 [Authorize]
 public class HomeController : Controller
 {
+    [AllowAnonymous]
     public IActionResult Index()
     {
-        return View();
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Dashboard");
+        }
+
+        return RedirectToAction("Ingresar", "Cuenta");
     }
 
     public IActionResult Privacy()
