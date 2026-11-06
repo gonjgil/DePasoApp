@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DePaso.Entidades", "DePaso.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DePaso.Tests", "DePaso.Tests\DePaso.Tests.csproj", "{846B9373-9FFA-45C5-A8E5-2785B9738EAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DePaso.UsuariosAPI", "DePaso.UsuariosAPI\DePaso.UsuariosAPI.csproj", "{F5B4A7F6-1658-4596-86E3-C342E1D15D54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DePaso.Api", "DePaso.Api\DePaso.Api.csproj", "{F5B4A7F6-1658-4596-86E3-C342E1D15D54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

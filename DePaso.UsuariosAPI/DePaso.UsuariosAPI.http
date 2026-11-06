@@ -1,6 +1,0 @@
-@DePaso.UsuariosAPI_HostAddress = http://localhost:5234
-
-// GET {{DePaso.UsuariosAPI_HostAddress}}/api/.../...
-Accept: application/json
-
-###

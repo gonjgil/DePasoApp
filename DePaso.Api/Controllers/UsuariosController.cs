@@ -1,9 +1,9 @@
-﻿using DePaso.Entidades;
+﻿using DePaso.Api.Models;
+using DePaso.Entidades;
 using DePaso.Logica;
-using DePaso.UsuariosAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DePaso.UsuariosAPI.Controllers;
+namespace DePaso.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -22,18 +22,17 @@ public class UsuariosController : Controller
         var usuario = await Usuarios.Ingresar(modelo.Email, modelo.Password);
         if (usuario is null)
         {
-            return Unauthorized(new
-            {
-                mensaje = "Email o Password incorrectos."
-            });
+            return Unauthorized(new { mensaje = "Email o Password incorrectos." });
         }
-        return Ok(new
-        {
-            usuario.Id,
-            usuario.Nombre,
-            usuario.Apellido,
-            usuario.Email
-        });
+        return Ok(
+            new
+            {
+                usuario.Id,
+                usuario.Nombre,
+                usuario.Apellido,
+                usuario.Email,
+            }
+        );
     }
 
     [HttpPost("registrarse")]
@@ -48,22 +47,23 @@ public class UsuariosController : Controller
             modelo.Nombre,
             modelo.Apellido,
             modelo.Email,
-            modelo.Password);
+            modelo.Password
+        );
 
         if (error is not null)
         {
-            return Conflict(new
-            {
-                mensaje = error
-            });
+            return Conflict(new { mensaje = error });
         }
-        return Created(string.Empty, new
-        {
-            usuario!.Id,
-            usuario.Nombre,
-            usuario.Apellido,
-            usuario.Email,
-            usuario.CreadoEn
-        });
+        return Created(
+            string.Empty,
+            new
+            {
+                usuario!.Id,
+                usuario.Nombre,
+                usuario.Apellido,
+                usuario.Email,
+                usuario.CreadoEn,
+            }
+        );
     }
 }
