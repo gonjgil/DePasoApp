@@ -17,7 +17,7 @@ namespace DePaso.Entidades.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.13")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -113,6 +113,18 @@ namespace DePaso.Entidades.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int>("DestinoAltura")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DestinoCalle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("DestinoDepartamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("DestinoDir")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -125,6 +137,20 @@ namespace DePaso.Entidades.Migrations
                     b.Property<decimal>("DestinoLng")
                         .HasColumnType("decimal(9, 6)");
 
+                    b.Property<string>("DestinoLocalidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DestinoPiso")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("DestinoProvincia")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<byte>("Estado")
                         .HasColumnType("tinyint");
 
@@ -133,6 +159,18 @@ namespace DePaso.Entidades.Migrations
 
                     b.Property<decimal>("Monto")
                         .HasColumnType("decimal(8, 2)");
+
+                    b.Property<int>("OrigenAltura")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrigenCalle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("OrigenDepartamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("OrigenDir")
                         .IsRequired()
@@ -145,6 +183,20 @@ namespace DePaso.Entidades.Migrations
 
                     b.Property<decimal>("OrigenLng")
                         .HasColumnType("decimal(9, 6)");
+
+                    b.Property<string>("OrigenLocalidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("OrigenPiso")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("OrigenProvincia")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("PesoKg")
                         .HasColumnType("decimal(5, 2)");
@@ -174,6 +226,17 @@ namespace DePaso.Entidades.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("Altura")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Calle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Departamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("Direccion")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -186,8 +249,22 @@ namespace DePaso.Entidades.Migrations
                     b.Property<decimal>("Lng")
                         .HasColumnType("decimal(9, 6)");
 
+                    b.Property<string>("Localidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("Orden")
                         .HasColumnType("int");
+
+                    b.Property<string>("Piso")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Provincia")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("ViajeId")
                         .HasColumnType("int");
@@ -268,6 +345,18 @@ namespace DePaso.Entidades.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<int>("DestinoAltura")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DestinoCalle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("DestinoDepartamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("DestinoDir")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -279,6 +368,20 @@ namespace DePaso.Entidades.Migrations
 
                     b.Property<decimal>("DestinoLng")
                         .HasColumnType("decimal(9, 6)");
+
+                    b.Property<string>("DestinoLocalidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DestinoPiso")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("DestinoProvincia")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("DesvioMaxKm")
                         .HasColumnType("decimal(4, 2)");
@@ -298,6 +401,18 @@ namespace DePaso.Entidades.Migrations
                     b.Property<int>("MaxPaquetes")
                         .HasColumnType("int");
 
+                    b.Property<int>("OrigenAltura")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrigenCalle")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("OrigenDepartamento")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.Property<string>("OrigenDir")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -309,6 +424,20 @@ namespace DePaso.Entidades.Migrations
 
                     b.Property<decimal>("OrigenLng")
                         .HasColumnType("decimal(9, 6)");
+
+                    b.Property<string>("OrigenLocalidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("OrigenPiso")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("OrigenProvincia")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("PesoMaxKg")
                         .HasColumnType("decimal(5, 2)");
