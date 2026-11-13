@@ -1,0 +1,279 @@
+@model NuevoViajeViewModel
+@using System.Globalization
+@using DePaso.Logica.helpers
+@{
+    ViewData["Title"] = "Nuevo viaje";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    var dias = new (byte Numero, string Nombre)[]
+    {
+        (1, "Lun"), (2, "Mar"), (3, "Mié"), (4, "Jue"), (5, "Vie"), (6, "Sáb"), (7, "Dom"),
+    };
+}
+
+<link rel="stylesheet" href="~/css/viaje.css" asp-append-version="true" />
+
+<div class="viaje-pagina">
+    <h1>Nuevo viaje</h1>
+    <p class="viaje-subtitulo">Registrá un recorrido habitual.</p>
+
+    @if (ViewData["Validado"] as bool? == true)
+    {
+        <div class="alert alert-success">
+            Los datos cumplen las validaciones del recorrido.
+            Días: @DiasSemana.Formatear(Model.Dias).
+            @if (Model.DistanciaKm is not null)
+            {
+                <span>Estimación sin el servicio de mapas: @Model.DistanciaKm.Value.ToString("0.0", es) km, @Model.DuracionMin min.</span>
+            }
+        </div>
+    }
+
+    <form asp-action="Nuevo" method="post" novalidate id="form-viaje">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <section class="viaje-bloque">
+            <h2>Origen</h2>
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label asp-for="OrigenCalle" class="form-label">Calle</label>
+                    <input asp-for="OrigenCalle" class="form-control" maxlength="150" />
+                    <span asp-validation-for="OrigenCalle" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="OrigenAltura" class="form-label">Altura</label>
+                    <input asp-for="OrigenAltura" class="form-control" type="number" min="1" />
+                    <span asp-validation-for="OrigenAltura" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="OrigenLocalidad" class="form-label">Localidad</label>
+                    <input asp-for="OrigenLocalidad" class="form-control" maxlength="100" />
+                    <span asp-validation-for="OrigenLocalidad" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="OrigenProvincia" class="form-label">Provincia</label>
+                    <input asp-for="OrigenProvincia" class="form-control" maxlength="100" />
+                    <span asp-validation-for="OrigenProvincia" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label asp-for="OrigenPiso" class="form-label">Piso</label>
+                    <input asp-for="OrigenPiso" class="form-control" maxlength="10" placeholder="Opcional" />
+                    <span asp-validation-for="OrigenPiso" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="OrigenDepartamento" class="form-label">Departamento</label>
+                    <input asp-for="OrigenDepartamento" class="form-control" maxlength="10" placeholder="Opcional" />
+                    <span asp-validation-for="OrigenDepartamento" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="OrigenLat" class="form-label">Latitud</label>
+                    <input asp-for="OrigenLat" class="form-control" type="number" step="0.000001" />
+                    <span asp-validation-for="OrigenLat" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="OrigenLng" class="form-label">Longitud</label>
+                    <input asp-for="OrigenLng" class="form-control" type="number" step="0.000001" />
+                    <span asp-validation-for="OrigenLng" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="viaje-bloque">
+            <h2>Destino</h2>
+            <div class="row">
+                <div class="col-md-8 mb-3">
+                    <label asp-for="DestinoCalle" class="form-label">Calle</label>
+                    <input asp-for="DestinoCalle" class="form-control" maxlength="150" />
+                    <span asp-validation-for="DestinoCalle" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="DestinoAltura" class="form-label">Altura</label>
+                    <input asp-for="DestinoAltura" class="form-control" type="number" min="1" />
+                    <span asp-validation-for="DestinoAltura" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DestinoLocalidad" class="form-label">Localidad</label>
+                    <input asp-for="DestinoLocalidad" class="form-control" maxlength="100" />
+                    <span asp-validation-for="DestinoLocalidad" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="DestinoProvincia" class="form-label">Provincia</label>
+                    <input asp-for="DestinoProvincia" class="form-control" maxlength="100" />
+                    <span asp-validation-for="DestinoProvincia" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DestinoPiso" class="form-label">Piso</label>
+                    <input asp-for="DestinoPiso" class="form-control" maxlength="10" placeholder="Opcional" />
+                    <span asp-validation-for="DestinoPiso" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DestinoDepartamento" class="form-label">Departamento</label>
+                    <input asp-for="DestinoDepartamento" class="form-control" maxlength="10" placeholder="Opcional" />
+                    <span asp-validation-for="DestinoDepartamento" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DestinoLat" class="form-label">Latitud</label>
+                    <input asp-for="DestinoLat" class="form-control" type="number" step="0.000001" />
+                    <span asp-validation-for="DestinoLat" class="text-danger"></span>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label asp-for="DestinoLng" class="form-label">Longitud</label>
+                    <input asp-for="DestinoLng" class="form-control" type="number" step="0.000001" />
+                    <span asp-validation-for="DestinoLng" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="viaje-bloque">
+            <h2>Paradas intermedias</h2>
+            <p class="text-muted">Opcionales. El orden de la lista es el orden del recorrido.</p>
+            <div id="paradas">
+                @for (var i = 0; i < Model.Paradas.Count; i++)
+                {
+                    ViewData["Indice"] = i;
+                    <partial name="_Parada" model="Model.Paradas[i]" />
+                }
+            </div>
+            <button type="button" class="btn btn-outline-dark" id="agregar-parada">Agregar parada</button>
+        </section>
+
+        <section class="viaje-bloque">
+            <h2>Días de la semana</h2>
+            <div class="viaje-dias">
+                @foreach (var dia in dias)
+                {
+                    var id = $"dia-{dia.Numero}";
+                    <input class="btn-check" type="checkbox" id="@id" name="Dias" value="@dia.Numero" autocomplete="off" @(Model.Dias.Contains(dia.Numero) ? "checked" : null) />
+                    <label class="btn btn-outline-dark" for="@id">@dia.Nombre</label>
+                }
+            </div>
+            <span asp-validation-for="Dias" class="text-danger"></span>
+        </section>
+
+        <section class="viaje-bloque">
+            <h2>Horarios</h2>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="HoraSalida" class="form-label">Hora de salida</label>
+                    <input asp-for="HoraSalida" class="form-control" type="time" step="60" />
+                    <span asp-validation-for="HoraSalida" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="HoraLlegada" class="form-label">Hora estimada de llegada</label>
+                    <input asp-for="HoraLlegada" class="form-control" type="time" step="60" />
+                    <span asp-validation-for="HoraLlegada" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="viaje-bloque">
+            <h2>Límites del viaje</h2>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MaxPaquetes" class="form-label">Paquetes máximos</label>
+                    <input asp-for="MaxPaquetes" class="form-control" type="number" min="1" />
+                    <span asp-validation-for="MaxPaquetes" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="PesoMaxKg" class="form-label">Peso máximo (kg)</label>
+                    <input asp-for="PesoMaxKg" class="form-control" type="number" min="0.01" step="0.01" />
+                    <span asp-validation-for="PesoMaxKg" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="DesvioMaxKm" class="form-label">Desvío máximo (km)</label>
+                    <input asp-for="DesvioMaxKm" class="form-control" type="number" min="0.01" step="0.01" />
+                    <span asp-validation-for="DesvioMaxKm" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="viaje-bloque">
+            <h2>Ruta</h2>
+            @if (Model.DistanciaKm is not null)
+            {
+                <p class="mb-1"><strong>@Model.DistanciaKm.Value.ToString("0.0", es) km</strong> · @Model.DuracionMin min</p>
+                <p class="text-muted mb-0">Estimación de desarrollo, sin el servicio de mapas. Cuando Geoapify esté conectado a esta pantalla, este valor se reemplaza por la ruta real.</p>
+            }
+            else
+            {
+                <p class="text-muted mb-0">Calculá la ruta para ver la distancia y el tiempo estimados. Hacen falta las coordenadas de origen, destino y de cada parada.</p>
+            }
+        </section>
+
+        <div class="viaje-acciones">
+            <button type="submit" class="btn btn-outline-dark" name="accion" value="calcular">Calcular ruta</button>
+            <button type="submit" class="btn btn-dark" name="accion" value="guardar">Guardar viaje</button>
+            <a class="btn btn-link text-dark" asp-controller="Dashboard" asp-action="Index">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<template id="plantilla-parada">
+    @{
+        ViewData["Indice"] = "__";
+    }
+    <partial name="_Parada" model="new ParadaViajeViewModel()" />
+</template>
+
+@section Scripts {
+    <script>
+        const lista = document.getElementById("paradas");
+        const plantilla = document.getElementById("plantilla-parada");
+
+        function numerar() {
+            lista.querySelectorAll("[data-parada]").forEach((fila, indice) => {
+                fila.querySelectorAll("[data-campo]").forEach((input) => {
+                    input.name = "Paradas[" + indice + "]." + input.dataset.campo;
+                    if (input.id) {
+                        input.id = input.id.replace(/(__|\d+)$/, indice);
+                    }
+                });
+                fila.querySelectorAll("label[for]").forEach((label) => {
+                    label.htmlFor = label.htmlFor.replace(/(__|\d+)$/, indice);
+                });
+                const orden = fila.querySelector("[data-orden]");
+                if (orden) {
+                    orden.textContent = indice + 1;
+                }
+            });
+        }
+
+        document.getElementById("agregar-parada").addEventListener("click", () => {
+            lista.appendChild(plantilla.content.cloneNode(true));
+            numerar();
+        });
+
+        lista.addEventListener("click", (evento) => {
+            const fila = evento.target.closest("[data-parada]");
+            if (!fila) {
+                return;
+            }
+
+            if (evento.target.closest("[data-quitar]")) {
+                fila.remove();
+                numerar();
+                return;
+            }
+
+            if (evento.target.closest("[data-subir]") && fila.previousElementSibling) {
+                lista.insertBefore(fila, fila.previousElementSibling);
+                numerar();
+                return;
+            }
+
+            if (evento.target.closest("[data-bajar]") && fila.nextElementSibling) {
+                lista.insertBefore(fila.nextElementSibling, fila);
+                numerar();
+            }
+        });
+
+        document.getElementById("form-viaje").addEventListener("submit", numerar);
+    </script>
+}
