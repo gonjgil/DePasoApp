@@ -6,22 +6,21 @@ using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<UsuariosApiClient>(client =>
 {
     client.BaseAddress = new Uri(
-        builder.Configuration["ApiUsuariosUrl"]
-            ?? throw new InvalidOperationException("No se configuró ApiUsuariosUrl.")
+        builder.Configuration["ApiUrl"]
+            ?? throw new InvalidOperationException("No se configuró ApiUrl.")
     );
 });
 
 builder.Services.AddHttpClient<EnviosApiClient>(client =>
 {
     client.BaseAddress = new Uri(
-        builder.Configuration["ApiUsuariosUrl"]
-            ?? throw new InvalidOperationException("No se configuró ApiUsuariosUrl.")
+        builder.Configuration["ApiUrl"]
+            ?? throw new InvalidOperationException("No se configuró ApiUrl.")
     );
 });
 

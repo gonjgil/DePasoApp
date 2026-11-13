@@ -14,11 +14,9 @@ public class NuevoEnvioViewModel
     [Required(ErrorMessage = "Ingresá una altura de origen.")]
     public int OrigenAltura { get; set; }
 
-    [Required(ErrorMessage = "Ingresá un piso de origen.")]
     public string? OrigenPiso { get; set; }
 
-    [Required(ErrorMessage = "Ingresá un departamento de origen.")]
-    public string OrigenDepartamento { get; set; } = "";
+    public string? OrigenDepartamento { get; set; } = "";
 
     [Required(ErrorMessage = "Ingresá una localidad de origen.")]
     public string OrigenLocalidad { get; set; } = "";
@@ -38,11 +36,9 @@ public class NuevoEnvioViewModel
     [Required(ErrorMessage = "Ingresá una altura de destino.")]
     public int DestinoAltura { get; set; }
 
-    [Required(ErrorMessage = "Ingresá un piso de destino.")]
     public string? DestinoPiso { get; set; }
 
-    [Required(ErrorMessage = "Ingresá un departamento de destino.")]
-    public string DestinoDepartamento { get; set; } = "";
+    public string? DestinoDepartamento { get; set; } = "";
 
     [Required(ErrorMessage = "Ingresá una localidad de destino.")]
     public string DestinoLocalidad { get; set; } = "";
