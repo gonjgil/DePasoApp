@@ -15,10 +15,20 @@ public class EnvioServicio
 
     public async Task<Envios?> Crear(
         int usuarioId,
-        string origenDir,
+        string origenCalle,
+        int origenAltura,
+        string origenPiso,
+        string origenDepartamento,
+        string origenLocalidad,
+        string origenProvincia,
         decimal origenLat,
         decimal origenLng,
-        string destinoDir,
+        string destinoCalle,
+        int destinoAltura,
+        string destinoPiso,
+        string destinoDepartamento,
+        string destinoLocalidad,
+        string destinoProvincia,
         decimal destinoLat,
         decimal destinoLng,
         DateOnly fechaLimite,
@@ -37,10 +47,20 @@ public class EnvioServicio
         var envio = new Envios
         {
             UsuarioId = usuarioId,
-            OrigenDir = origenDir.Trim(),
+            OrigenCalle = origenCalle,
+            OrigenAltura = origenAltura,
+            OrigenPiso = origenPiso,
+            OrigenDepartamento = origenDepartamento,
+            OrigenLocalidad = origenLocalidad,
+            OrigenProvincia = origenProvincia,
             OrigenLat = origenLat,
             OrigenLng = origenLng,
-            DestinoDir = destinoDir.Trim(),
+            DestinoCalle = destinoCalle,
+            DestinoAltura = destinoAltura,
+            DestinoPiso = destinoPiso,
+            DestinoDepartamento = destinoDepartamento,
+            DestinoLocalidad = destinoLocalidad,
+            DestinoProvincia = destinoProvincia,
             DestinoLat = destinoLat,
             DestinoLng = destinoLng,
             FechaLimite = fechaLimite,
@@ -79,10 +99,20 @@ public class EnvioServicio
     public async Task<Envios?> Editar(
         int id,
         int usuarioId,
-        string origenDir,
+        string origenCalle,
+        int origenAltura,
+        string origenPiso,
+        string origenDepartamento,
+        string origenLocalidad,
+        string origenProvincia,
         decimal origenLat,
         decimal origenLng,
-        string destinoDir,
+        string destinoCalle,
+        int destinoAltura,
+        string destinoPiso,
+        string destinoDepartamento,
+        string destinoLocalidad,
+        string destinoProvincia,
         decimal destinoLat,
         decimal destinoLng,
         DateOnly fechaLimite,
@@ -100,10 +130,20 @@ public class EnvioServicio
             return null;
         }
 
-        envio.OrigenDir = origenDir.Trim();
+        envio.OrigenCalle = origenCalle;
+        envio.OrigenAltura = origenAltura;
+        envio.OrigenPiso = origenPiso;
+        envio.OrigenDepartamento = origenDepartamento;
+        envio.OrigenLocalidad = origenLocalidad;
+        envio.OrigenProvincia = origenProvincia;
         envio.OrigenLat = origenLat;
         envio.OrigenLng = origenLng;
-        envio.DestinoDir = destinoDir.Trim();
+        envio.DestinoCalle = destinoCalle;
+        envio.DestinoAltura = destinoAltura;
+        envio.DestinoPiso = destinoPiso;
+        envio.DestinoDepartamento = destinoDepartamento;
+        envio.DestinoLocalidad = destinoLocalidad;
+        envio.DestinoProvincia = destinoProvincia;
         envio.DestinoLat = destinoLat;
         envio.DestinoLng = destinoLng;
         envio.FechaLimite = fechaLimite;

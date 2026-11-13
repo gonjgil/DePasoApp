@@ -6,6 +6,7 @@ using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient<UsuariosApiClient>(client =>

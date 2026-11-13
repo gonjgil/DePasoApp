@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DePaso.Api.Models;
 
+// TODO: ver si se puede eliminar despues de actualizar direcciones
 public class EnvioRegistro
 {
     [Required]
