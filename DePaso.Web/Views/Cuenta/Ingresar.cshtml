@@ -3,26 +3,33 @@
     ViewData["Title"] = "Ingresar";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <h1>Ingresar</h1>
-        <form asp-action="Ingresar" method="post" novalidate>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label">Email</label>
-                <input asp-for="Email" class="form-control" type="email" autocomplete="username" placeholder="tu@email.com" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Contrasena" class="form-label">Contraseña</label>
-                <input asp-for="Contrasena" class="form-control" autocomplete="current-password" />
-                <span asp-validation-for="Contrasena" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-primary">Ingresar</button>
-        </form>
-        <p class="mt-3">¿Todavía no tenés una cuenta? <a asp-action="Registrarse">Crear cuenta</a></p>
+<section class="auth-shell" aria-labelledby="auth-title">
+    <div class="auth-panel">
+        <div class="auth-form">
+            <header class="auth-heading">
+                <span class="icon-tile"><span class="dp-icon icon-user" aria-hidden="true"></span></span>
+                <h1 id="auth-title" class="page-title">Ingresá a DePaso</h1>
+                <p class="page-subtitle">Accedé a tus envíos y viajes.</p>
+            </header>
+            <form asp-action="Ingresar" method="post" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger form-summary"></div>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" type="email" autocomplete="username" placeholder="tu@email.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Contrasena" class="form-label">Contraseña</label>
+                    <input asp-for="Contrasena" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Contrasena" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 auth-submit">Ingresar</button>
+            </form>
+            <p class="auth-switch">¿Todavía no tenés una cuenta? <a asp-action="Registrarse">Crear cuenta</a></p>
+        </div>
     </div>
-</div>
+    <partial name="_ImagenAcceso" />
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

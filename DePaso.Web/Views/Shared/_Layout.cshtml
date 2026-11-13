@@ -1,52 +1,118 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    var controlador = ViewContext.RouteData.Values["controller"]?.ToString();
+    var accion = ViewContext.RouteData.Values["action"]?.ToString();
+    var seccion = controlador switch
+    {
+        "Dashboard" => "Panel",
+        "Envios" => "Envíos",
+        "Viajes" => "Viajes",
+        _ => ViewData["Title"]?.ToString() ?? "Inicio"
+    };
+    var inicioActivo = controlador == "Dashboard";
+    var enviosActivo = controlador == "Envios";
+    var viajesActivo = controlador == "Viajes";
+    var privacidadActiva = controlador == "Home" && accion == "Privacy";
+}
+<!DOCTYPE html>
+<html lang="es-AR">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - DePaso.Web</title>
+    <title>@ViewData["Title"] · DePaso</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DePaso.Web.styles.css" asp-append-version="true" />
+    <link rel="icon" href="~/favicon.ico" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DePaso.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+    @if (autenticado)
+    {
+        <aside class="app-sidebar">
+            <nav class="navbar navbar-expand-lg navbar-dark" aria-label="Navegación principal">
+                <a class="navbar-brand brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark"><span class="dp-icon icon-route" aria-hidden="true"></span></span>
+                    DePaso
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#app-navigation"
+                        aria-controls="app-navigation" aria-expanded="false" aria-label="Mostrar u ocultar navegación">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="app-navigation">
+                    <ul class="navbar-nav app-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link @(inicioActivo ? "active" : "")" aria-current="@(inicioActivo ? "page" : null)"
+                               asp-controller="Home" asp-action="Index">
+                                <span class="dp-icon icon-grid" aria-hidden="true"></span> Inicio
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link @(enviosActivo ? "active" : "")" aria-current="@(enviosActivo ? (accion == "Index" ? "page" : "location") : null)"
+                               asp-controller="Envios" asp-action="Index">
+                                <span class="dp-icon icon-package" aria-hidden="true"></span> Mis envíos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(viajesActivo ? "active" : "")" aria-current="@(viajesActivo ? "page" : null)"
+                               asp-controller="Viajes" asp-action="Nuevo">
+                                <span class="dp-icon icon-map" aria-hidden="true"></span> Nuevo viaje
+                            </a>
                         </li>
                     </ul>
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <span class="nav-link text-dark">@User.Identity.Name</span>
-                        <form asp-controller="Cuenta" asp-action="Salir" method="post" class="d-flex">
-                            <button type="submit" class="btn btn-link nav-link text-dark">Cerrar sesión</button>
-                        </form>
-                    }
+                    <ul class="navbar-nav app-nav app-nav-secondary">
+                        <li class="nav-item">
+                            <a class="nav-link @(privacidadActiva ? "active" : "")" aria-current="@(privacidadActiva ? "page" : null)"
+                               asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <span class="dp-icon icon-shield" aria-hidden="true"></span> Privacidad
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        <header class="app-topbar">
+            <div class="app-frame app-topbar-inner">
+                <span class="app-section">@seccion</span>
+                <div class="app-account">
+                    <span class="app-account-icon"><span class="dp-icon icon-user" aria-hidden="true"></span></span>
+                    <span class="app-account-name">@User.Identity?.Name</span>
+                    <form asp-controller="Cuenta" asp-action="Salir" method="post">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary app-logout">
+                            <span class="dp-icon icon-logout" aria-hidden="true"></span>
+                            <span>Cerrar sesión</span>
+                        </button>
+                    </form>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+        </header>
+    }
+    else
+    {
+        <header class="public-topbar">
+            <div class="container public-frame">
+                <a class="navbar-brand brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark"><span class="dp-icon icon-route" aria-hidden="true"></span></span>
+                    DePaso
+                </a>
+            </div>
+        </header>
+    }
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - DePaso.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="@(autenticado ? "app-main" : "public-main")">
+        <div class="@(autenticado ? "app-frame" : "container public-frame")">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="site-footer @(autenticado ? "app-footer" : "public-footer")">
+        <div class="@(autenticado ? "app-frame" : "container public-frame") footer-inner">
+            <span>&copy; 2026 DePaso</span>
+            @if (!autenticado)
+            {
+                <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+            }
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
