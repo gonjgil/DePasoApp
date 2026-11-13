@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using DePaso.Web.Models;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace DePaso.Web.Services;
 
@@ -179,5 +181,11 @@ public class EnviosApiClient
 
         respuesta.EnsureSuccessStatusCode();
         return true;
+    }
+
+    public Task<JsonElement> SugerirCallesAsync(string texto, CancellationToken ct)
+    {
+        var url = QueryHelpers.AddQueryString("api/envios/sugerir-calles", "texto", texto);
+        return _httpClient.GetFromJsonAsync<JsonElement>(url, ct);
     }
 }

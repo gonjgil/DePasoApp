@@ -378,4 +378,30 @@ public class EnviosController : Controller
         || !MismoNombre(calle, nueva.Calle)
         || !MismoNombre(localidad, nueva.Localidad)
         || !MismoNombre(provincia, nueva.Provincia);
+
+    [HttpGet("sugerir-calles")]
+    public async Task<IActionResult> SugerirCalles([FromQuery] string? texto, CancellationToken ct)
+    {
+        texto = texto?.Trim();
+        if (texto is null || texto.Length < 3)
+            return Ok(Array.Empty<SugerenciaCalle>());
+
+        var resultados = await _geoapify.SugerirCallesAsync(texto, ct);
+
+        var sugerencias = resultados
+            .Select(r => new SugerenciaCalle(
+                r.Street ?? "",
+                r.City ?? r.Suburb ?? r.District ?? "",
+                r.State ?? ""
+            ))
+            .Where(r =>
+                !string.IsNullOrWhiteSpace(r.Calle)
+                && !string.IsNullOrWhiteSpace(r.Localidad)
+                && !string.IsNullOrWhiteSpace(r.Provincia)
+            )
+            .Distinct()
+            .ToArray();
+
+        return Ok(sugerencias);
+    }
 }

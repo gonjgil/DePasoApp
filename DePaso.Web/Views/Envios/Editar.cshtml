@@ -6,7 +6,7 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
         <h1>Editar envío</h1>
-        <form asp-action="Editar" method="post" novalidate>
+        <form asp-action="Editar" method="post" novalidate data-url-calles="@Url.Action("SugerirCalles", "Envios")">
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <div class="row">
                 <fieldset class="col-12 col-md-6 mb-3">
@@ -14,7 +14,9 @@
                     <div class="row">
                         <div class="col-8 mb-3">
                             <label asp-for="OrigenCalle" class="form-label">Calle</label>
-                            <input asp-for="OrigenCalle" class="form-control" maxlength="150" />
+                            <input asp-for="OrigenCalle" class="form-control" maxlength="150" autocomplete="off" />
+                            <div id="OrigenSugerencias" class="list-group mt-1"></div>
+                            <div id="OrigenEstadoCalle" class="small text-muted" aria-live="polite"></div>
                             <span asp-validation-for="OrigenCalle" class="text-danger"></span>
                         </div>
                         <div class="col-4 mb-3">
@@ -24,12 +26,12 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label asp-for="OrigenLocalidad" class="form-label">Localidad</label>
-                            <input asp-for="OrigenLocalidad" class="form-control" maxlength="100" />
+                            <input asp-for="OrigenLocalidad" class="form-control" maxlength="100" readonly />
                             <span asp-validation-for="OrigenLocalidad" class="text-danger"></span>
                         </div>
                         <div class="col-12 mb-3">
                             <label asp-for="OrigenProvincia" class="form-label">Provincia</label>
-                            <input asp-for="OrigenProvincia" class="form-control" maxlength="100" />
+                            <input asp-for="OrigenProvincia" class="form-control" maxlength="100" readonly />
                             <span asp-validation-for="OrigenProvincia" class="text-danger"></span>
                         </div>
                         <div class="col-6 mb-3">
@@ -49,7 +51,9 @@
                     <div class="row">
                         <div class="col-8 mb-3">
                             <label asp-for="DestinoCalle" class="form-label">Calle</label>
-                            <input asp-for="DestinoCalle" class="form-control" maxlength="150" />
+                            <input asp-for="DestinoCalle" class="form-control" maxlength="150" autocomplete="off" />
+                            <div id="DestinoSugerencias" class="list-group mt-1"></div>
+                            <div id="DestinoEstadoCalle" class="small text-muted" aria-live="polite"></div>
                             <span asp-validation-for="DestinoCalle" class="text-danger"></span>
                         </div>
                         <div class="col-4 mb-3">
@@ -59,12 +63,12 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label asp-for="DestinoLocalidad" class="form-label">Localidad</label>
-                            <input asp-for="DestinoLocalidad" class="form-control" maxlength="100" />
+                            <input asp-for="DestinoLocalidad" class="form-control" maxlength="100" readonly />
                             <span asp-validation-for="DestinoLocalidad" class="text-danger"></span>
                         </div>
                         <div class="col-12 mb-3">
                             <label asp-for="DestinoProvincia" class="form-label">Provincia</label>
-                            <input asp-for="DestinoProvincia" class="form-control" maxlength="100" />
+                            <input asp-for="DestinoProvincia" class="form-control" maxlength="100" readonly />
                             <span asp-validation-for="DestinoProvincia" class="text-danger"></span>
                         </div>
                         <div class="col-6 mb-3">
@@ -117,4 +121,5 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/autocompletar-calles.js" asp-append-version="true"></script>
 }

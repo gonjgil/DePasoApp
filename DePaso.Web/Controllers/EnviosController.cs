@@ -182,4 +182,24 @@ public class EnviosController : Controller
         await _enviosApi.BorrarAsync(id, usuario);
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> SugerirCalles(string? texto, CancellationToken ct)
+    {
+        texto = texto?.Trim();
+        if (texto is null || texto.Length < 3)
+            return Json(Array.Empty<object>());
+
+        try
+        {
+            return Json(await _enviosApi.SugerirCallesAsync(texto, ct));
+        }
+        catch (OperationCanceledException)
+        {
+            if (ct.IsCancellationRequested)
+                return new EmptyResult();
+
+            throw;
+        }
+    }
 }
