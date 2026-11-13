@@ -337,25 +337,21 @@ public class EnviosController : Controller
 
         var resultados = await _geoapify.BuscarAsync(texto, ct);
 
-        var coincidencias = resultados
-            .Where(r =>
-                r.Lat.HasValue
-                && r.Lon.HasValue
-                && int.TryParse(r.Housenumber, out var numero)
-                && numero == altura
-                && MismoNombre(r.Street, direccion.Calle)
-                && MismoNombre(r.State, direccion.Provincia)
-                && (
-                    MismoNombre(r.City, direccion.Localidad)
-                    || MismoNombre(r.Suburb, direccion.Localidad)
-                    || MismoNombre(r.District, direccion.Localidad)
-                )
+        var coincidencia = resultados.FirstOrDefault(r =>
+            r.Lat.HasValue
+            && r.Lon.HasValue
+            && int.TryParse(r.Housenumber, out var numero)
+            && numero == altura
+            && MismoNombre(r.Street, direccion.Calle)
+            && MismoNombre(r.State, direccion.Provincia)
+            && (
+                MismoNombre(r.City, direccion.Localidad)
+                || MismoNombre(r.Suburb, direccion.Localidad)
+                || MismoNombre(r.District, direccion.Localidad)
             )
-            .DistinctBy(r => (r.Lat, r.Lon))
-            .Take(2)
-            .ToArray();
+        );
 
-        return coincidencias.Length == 1 ? coincidencias[0] : null;
+        return coincidencia;
     }
 
     private static bool MismoNombre(string? recibido, string ingresado) =>
