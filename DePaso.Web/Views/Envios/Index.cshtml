@@ -35,8 +35,14 @@
                         @foreach (var envio in Model)
                         {
                             <tr>
-                                <td>@envio.OrigenDir</td>
-                                <td>@envio.DestinoDir</td>
+                                <td>@envio.OrigenCalle</td>
+                                <td>@envio.OrigenAltura</td>
+                                <td>@envio.OrigenLocalidad</td>
+                                <td>@envio.OrigenProvincia</td>
+                                <td>@envio.DestinoCalle</td>
+                                <td>@envio.DestinoAltura</td>
+                                <td>@envio.DestinoLocalidad</td>
+                                <td>@envio.DestinoProvincia</td>
                                 <td>@envio.FechaLimite.ToString("dd/MM/yyyy")</td>
                                 <td>@envio.PesoKg kg</td>
                                 <td>$@envio.Monto</td>

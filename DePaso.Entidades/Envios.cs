@@ -10,10 +10,6 @@ public partial class Envios
 
     public int UsuarioId { get; set; }
 
-    // TODO: eliminar OrigenDir y DestinoDir, despues de adaptar todo
-    public string OrigenDir { get; set; } = null!;
-    public string DestinoDir { get; set; } = null!;
-
     [Required]
     [MaxLength(150)]
     public string OrigenCalle { get; set; } = null!;

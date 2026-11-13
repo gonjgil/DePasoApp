@@ -6,10 +6,6 @@ public class EnvioApiResponse
 
     public int UsuarioId { get; set; }
 
-    // TODO: eliminar OrigenDir y DestinoDir, despues de adaptar todo
-    public string OrigenDir { get; set; } = "";
-    public string DestinoDir { get; set; } = "";
-
     public string OrigenCalle { get; set; } = "";
 
     public int OrigenAltura { get; set; }
