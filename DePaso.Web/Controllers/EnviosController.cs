@@ -52,12 +52,18 @@ public class EnviosController : Controller
 
         var resultado = await _enviosApi.CrearAsync(
             id,
-            modelo.OrigenDir,
-            modelo.OrigenLat,
-            modelo.OrigenLng,
-            modelo.DestinoDir,
-            modelo.DestinoLat,
-            modelo.DestinoLng,
+            modelo.OrigenCalle,
+            modelo.OrigenAltura,
+            modelo.OrigenPiso,
+            modelo.OrigenDepartamento,
+            modelo.OrigenLocalidad,
+            modelo.OrigenProvincia,
+            modelo.DestinoCalle,
+            modelo.DestinoAltura,
+            modelo.DestinoPiso,
+            modelo.DestinoDepartamento,
+            modelo.DestinoLocalidad,
+            modelo.DestinoProvincia,
             modelo.FechaLimite,
             modelo.PesoKg,
             modelo.Tamanio,
@@ -91,10 +97,20 @@ public class EnviosController : Controller
 
         var modelo = new NuevoEnvioViewModel
         {
-            OrigenDir = envio.OrigenDir,
+            OrigenCalle = envio.OrigenCalle,
+            OrigenAltura = envio.OrigenAltura,
+            OrigenPiso = envio.OrigenPiso,
+            OrigenDepartamento = envio.OrigenDepartamento,
+            OrigenLocalidad = envio.OrigenLocalidad,
+            OrigenProvincia = envio.OrigenProvincia,
             OrigenLat = envio.OrigenLat,
             OrigenLng = envio.OrigenLng,
-            DestinoDir = envio.DestinoDir,
+            DestinoCalle = envio.DestinoCalle,
+            DestinoAltura = envio.DestinoAltura,
+            DestinoPiso = envio.DestinoPiso,
+            DestinoDepartamento = envio.DestinoDepartamento,
+            DestinoLocalidad = envio.DestinoLocalidad,
+            DestinoProvincia = envio.DestinoProvincia,
             DestinoLat = envio.DestinoLat,
             DestinoLng = envio.DestinoLng,
             FechaLimite = envio.FechaLimite,
@@ -125,12 +141,18 @@ public class EnviosController : Controller
         var resultado = await _enviosApi.EditarAsync(
             id,
             usuario,
-            modelo.OrigenDir,
-            modelo.OrigenLat,
-            modelo.OrigenLng,
-            modelo.DestinoDir,
-            modelo.DestinoLat,
-            modelo.DestinoLng,
+            modelo.OrigenCalle,
+            modelo.OrigenAltura,
+            modelo.OrigenPiso,
+            modelo.OrigenDepartamento,
+            modelo.OrigenLocalidad,
+            modelo.OrigenProvincia,
+            modelo.DestinoCalle,
+            modelo.DestinoAltura,
+            modelo.DestinoPiso,
+            modelo.DestinoDepartamento,
+            modelo.DestinoLocalidad,
+            modelo.DestinoProvincia,
             modelo.FechaLimite,
             modelo.PesoKg,
             modelo.Tamanio,
@@ -159,5 +181,25 @@ public class EnviosController : Controller
 
         await _enviosApi.BorrarAsync(id, usuario);
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> SugerirCalles(string? texto, CancellationToken ct)
+    {
+        texto = texto?.Trim();
+        if (texto is null || texto.Length < 3)
+            return Json(Array.Empty<object>());
+
+        try
+        {
+            return Json(await _enviosApi.SugerirCallesAsync(texto, ct));
+        }
+        catch (OperationCanceledException)
+        {
+            if (ct.IsCancellationRequested)
+                return new EmptyResult();
+
+            throw;
+        }
     }
 }

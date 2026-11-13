@@ -64,6 +64,20 @@ public sealed class GeoapifyClient(HttpClient http, IConfiguration configuracion
     }
 
     private sealed record RespuestaGeoapify<T>(T[]? Results);
+
+    public Task<DireccionGeoapify[]> SugerirCallesAsync(string texto, CancellationToken ct) =>
+        ConsultarAsync<DireccionGeoapify>(
+            "v1/geocode/autocomplete",
+            new()
+            {
+                ["text"] = texto,
+                ["type"] = "street",
+                ["filter"] = "countrycode:ar",
+                ["lang"] = "es",
+                ["limit"] = "5",
+            },
+            ct
+        );
 }
 
 public sealed record DireccionGeoapify(

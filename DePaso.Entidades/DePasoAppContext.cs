@@ -6,14 +6,10 @@ namespace DePaso.Entidades;
 
 public partial class DePasoAppContext : DbContext
 {
-    public DePasoAppContext()
-    {
-    }
+    public DePasoAppContext() { }
 
     public DePasoAppContext(DbContextOptions<DePasoAppContext> options)
-        : base(options)
-    {
-    }
+        : base(options) { }
 
     public virtual DbSet<Asignaciones> Asignaciones { get; set; }
 
@@ -29,8 +25,8 @@ public partial class DePasoAppContext : DbContext
 
     public virtual DbSet<Viajes> Viajes { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Name=ConnectionStrings:Conexion");
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+        optionsBuilder.UseSqlServer("Name=ConnectionStrings:Conexion");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,18 +36,23 @@ public partial class DePasoAppContext : DbContext
 
             entity.HasIndex(e => e.EnvioId, "UQ__Asignaci__D024E23E16902D18").IsUnique();
 
-            entity.Property(e => e.AsignadoEn)
+            entity
+                .Property(e => e.AsignadoEn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.DesvioKm).HasColumnType("decimal(4, 2)");
             entity.Property(e => e.Ganancia).HasColumnType("decimal(8, 2)");
 
-            entity.HasOne(d => d.Envio).WithOne(p => p.Asignaciones)
+            entity
+                .HasOne(d => d.Envio)
+                .WithOne(p => p.Asignaciones)
                 .HasForeignKey<Asignaciones>(d => d.EnvioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Asignacion_Envio");
 
-            entity.HasOne(d => d.Viaje).WithMany(p => p.Asignaciones)
+            entity
+                .HasOne(d => d.Viaje)
+                .WithMany(p => p.Asignaciones)
                 .HasForeignKey(d => d.ViajeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Asignacion_Viaje");
@@ -63,11 +64,14 @@ public partial class DePasoAppContext : DbContext
 
             entity.HasIndex(e => e.EnvioId, "UQ__EnvioEst__D024E23E3313BBA8");
 
-            entity.Property(e => e.Fecha)
+            entity
+                .Property(e => e.Fecha)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
 
-            entity.HasOne(d => d.Envio).WithMany(p => p.EnvioEstadoHistoria)
+            entity
+                .HasOne(d => d.Envio)
+                .WithMany(p => p.EnvioEstadoHistoria)
                 .HasForeignKey(d => d.EnvioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EnvioEstadoHistoria_Envio");
@@ -77,26 +81,21 @@ public partial class DePasoAppContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Envios__3214EC07F23EEC5D");
 
-            entity.Property(e => e.CreadoEn)
+            entity
+                .Property(e => e.CreadoEn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
-            entity.Property(e => e.Descripcion)
-                .HasMaxLength(255)
-                .IsUnicode(false);
-            entity.Property(e => e.DestinoDir)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+            entity.Property(e => e.Descripcion).HasMaxLength(255).IsUnicode(false);
             entity.Property(e => e.DestinoLat).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.DestinoLng).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.Monto).HasColumnType("decimal(8, 2)");
-            entity.Property(e => e.OrigenDir)
-                .HasMaxLength(255)
-                .IsUnicode(false);
             entity.Property(e => e.OrigenLat).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.OrigenLng).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.PesoKg).HasColumnType("decimal(5, 2)");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Envios)
+            entity
+                .HasOne(d => d.Usuario)
+                .WithMany(p => p.Envios)
                 .HasForeignKey(d => d.UsuarioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Envio_Usuario");
@@ -106,13 +105,13 @@ public partial class DePasoAppContext : DbContext
         {
             entity.HasKey(e => e.Id).HasName("PK__Paradas__3214EC077DADEF59");
 
-            entity.Property(e => e.Direccion)
-                .HasMaxLength(255)
-                .IsUnicode(false);
+            entity.Property(e => e.Direccion).HasMaxLength(255).IsUnicode(false);
             entity.Property(e => e.Lat).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.Lng).HasColumnType("decimal(9, 6)");
 
-            entity.HasOne(d => d.Viaje).WithMany(p => p.Paradas)
+            entity
+                .HasOne(d => d.Viaje)
+                .WithMany(p => p.Paradas)
                 .HasForeignKey(d => d.ViajeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Parada_Viaje");
@@ -120,14 +119,13 @@ public partial class DePasoAppContext : DbContext
 
         modelBuilder.Entity<Usuarios>(entity =>
         {
-         
-
             entity.HasKey(e => e.Id).HasName("PK__Usuarios__3214EC07E7F20049");
 
             entity.HasIndex(e => e.Email, "UQ__Usuarios__A9D10534338279AE").IsUnique();
 
             entity.Property(e => e.Apellido).HasMaxLength(100);
-            entity.Property(e => e.CreadoEn)
+            entity
+                .Property(e => e.CreadoEn)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(255);
@@ -139,7 +137,9 @@ public partial class DePasoAppContext : DbContext
         {
             entity.HasKey(e => new { e.ViajeId, e.DiaSemana });
 
-            entity.HasOne(d => d.Viaje).WithMany(p => p.ViajeDia)
+            entity
+                .HasOne(d => d.Viaje)
+                .WithMany(p => p.ViajeDia)
                 .HasForeignKey(d => d.ViajeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_ViajeDia_Viaje");
@@ -150,21 +150,17 @@ public partial class DePasoAppContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__Viajes__3214EC07838E3B0F");
 
             entity.Property(e => e.Activo).HasDefaultValue(false);
-            entity.Property(e => e.DestinoDir)
-                .HasMaxLength(255)
-                .IsUnicode(false);
             entity.Property(e => e.DestinoLat).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.DestinoLng).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.DesvioMaxKm).HasColumnType("decimal(4, 2)");
             entity.Property(e => e.DistanciaKm).HasColumnType("decimal(4, 2)");
-            entity.Property(e => e.OrigenDir)
-                .HasMaxLength(255)
-                .IsUnicode(false);
             entity.Property(e => e.OrigenLat).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.OrigenLng).HasColumnType("decimal(9, 6)");
             entity.Property(e => e.PesoMaxKg).HasColumnType("decimal(5, 2)");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Viajes)
+            entity
+                .HasOne(d => d.Usuario)
+                .WithMany(p => p.Viajes)
                 .HasForeignKey(d => d.UsuarioId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Viaje_Usuario");
