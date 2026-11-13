@@ -9,63 +9,101 @@
         <form asp-action="Editar" method="post" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="OrigenDir" class="form-label">Origen</label>
-                    <input asp-for="OrigenDir" class="form-control" placeholder="Dirección de origen" />
-                    <span asp-validation-for="OrigenDir" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="DestinoDir" class="form-label">Destino</label>
-                    <input asp-for="DestinoDir" class="form-control" placeholder="Dirección de destino" />
-                    <span asp-validation-for="DestinoDir" class="text-danger"></span>
-                </div>
+                <fieldset class="col-12 col-md-6 mb-3">
+                    <legend class="h5">Origen</legend>
+                    <div class="row">
+                        <div class="col-8 mb-3">
+                            <label asp-for="OrigenCalle" class="form-label">Calle</label>
+                            <input asp-for="OrigenCalle" class="form-control" maxlength="150" />
+                            <span asp-validation-for="OrigenCalle" class="text-danger"></span>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label asp-for="OrigenAltura" class="form-label">Altura</label>
+                            <input asp-for="OrigenAltura" class="form-control" type="number" min="1" step="1" />
+                            <span asp-validation-for="OrigenAltura" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label asp-for="OrigenLocalidad" class="form-label">Localidad</label>
+                            <input asp-for="OrigenLocalidad" class="form-control" maxlength="100" />
+                            <span asp-validation-for="OrigenLocalidad" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label asp-for="OrigenProvincia" class="form-label">Provincia</label>
+                            <input asp-for="OrigenProvincia" class="form-control" maxlength="100" />
+                            <span asp-validation-for="OrigenProvincia" class="text-danger"></span>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label asp-for="OrigenPiso" class="form-label">Piso (opcional)</label>
+                            <input asp-for="OrigenPiso" class="form-control" maxlength="10" />
+                            <span asp-validation-for="OrigenPiso" class="text-danger"></span>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label asp-for="OrigenDepartamento" class="form-label">Departamento (opcional)</label>
+                            <input asp-for="OrigenDepartamento" class="form-control" maxlength="10" />
+                            <span asp-validation-for="OrigenDepartamento" class="text-danger"></span>
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="col-12 col-md-6 mb-3">
+                    <legend class="h5">Destino</legend>
+                    <div class="row">
+                        <div class="col-8 mb-3">
+                            <label asp-for="DestinoCalle" class="form-label">Calle</label>
+                            <input asp-for="DestinoCalle" class="form-control" maxlength="150" />
+                            <span asp-validation-for="DestinoCalle" class="text-danger"></span>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label asp-for="DestinoAltura" class="form-label">Altura</label>
+                            <input asp-for="DestinoAltura" class="form-control" type="number" min="1" step="1" />
+                            <span asp-validation-for="DestinoAltura" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label asp-for="DestinoLocalidad" class="form-label">Localidad</label>
+                            <input asp-for="DestinoLocalidad" class="form-control" maxlength="100" />
+                            <span asp-validation-for="DestinoLocalidad" class="text-danger"></span>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label asp-for="DestinoProvincia" class="form-label">Provincia</label>
+                            <input asp-for="DestinoProvincia" class="form-control" maxlength="100" />
+                            <span asp-validation-for="DestinoProvincia" class="text-danger"></span>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label asp-for="DestinoPiso" class="form-label">Piso (opcional)</label>
+                            <input asp-for="DestinoPiso" class="form-control" maxlength="10" />
+                            <span asp-validation-for="DestinoPiso" class="text-danger"></span>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label asp-for="DestinoDepartamento" class="form-label">Departamento (opcional)</label>
+                            <input asp-for="DestinoDepartamento" class="form-control" maxlength="10" />
+                            <span asp-validation-for="DestinoDepartamento" class="text-danger"></span>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label asp-for="OrigenLat" class="form-label">Latitud origen</label>
-                    <input asp-for="OrigenLat" class="form-control" type="number" step="0.000001" />
-                    <span asp-validation-for="OrigenLat" class="text-danger"></span>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label asp-for="OrigenLng" class="form-label">Longitud origen</label>
-                    <input asp-for="OrigenLng" class="form-control" type="number" step="0.000001" />
-                    <span asp-validation-for="OrigenLng" class="text-danger"></span>
-                </div>
                 <div class="col-md-4 mb-3">
                     <label asp-for="Tamanio" class="form-label">Tamaño</label>
                     <input asp-for="Tamanio" class="form-control" type="number" min="1" max="255" />
                     <span asp-validation-for="Tamanio" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label asp-for="DestinoLat" class="form-label">Latitud destino</label>
-                    <input asp-for="DestinoLat" class="form-control" type="number" step="0.000001" />
-                    <span asp-validation-for="DestinoLat" class="text-danger"></span>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label asp-for="DestinoLng" class="form-label">Longitud destino</label>
-                    <input asp-for="DestinoLng" class="form-control" type="number" step="0.000001" />
-                    <span asp-validation-for="DestinoLng" class="text-danger"></span>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label asp-for="FechaLimite" class="form-label">Fecha límite</label>
                     <input asp-for="FechaLimite" class="form-control" type="date" />
                     <span asp-validation-for="FechaLimite" class="text-danger"></span>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col-md-4 mb-3">
                     <label asp-for="PesoKg" class="form-label">Peso (kg)</label>
                     <input asp-for="PesoKg" class="form-control" type="number" step="0.01" />
                     <span asp-validation-for="PesoKg" class="text-danger"></span>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col-md-4 mb-3">
                     <label asp-for="Monto" class="form-label">Monto</label>
                     <input asp-for="Monto" class="form-control" type="number" step="0.01" />
                     <span asp-validation-for="Monto" class="text-danger"></span>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-8 mb-3">
                     <label asp-for="Descripcion" class="form-label">Descripción</label>
                     <input asp-for="Descripcion" class="form-control" placeholder="Ej. Paquetes de oficina" />
                     <span asp-validation-for="Descripcion" class="text-danger"></span>
