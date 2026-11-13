@@ -17,16 +17,16 @@ public class EnvioServicio
         int usuarioId,
         string origenCalle,
         int origenAltura,
-        string origenPiso,
-        string origenDepartamento,
+        string? origenPiso,
+        string? origenDepartamento,
         string origenLocalidad,
         string origenProvincia,
         decimal origenLat,
         decimal origenLng,
         string destinoCalle,
         int destinoAltura,
-        string destinoPiso,
-        string destinoDepartamento,
+        string? destinoPiso,
+        string? destinoDepartamento,
         string destinoLocalidad,
         string destinoProvincia,
         decimal destinoLat,
@@ -89,11 +89,9 @@ public class EnvioServicio
             .ToListAsync();
     }
 
-    public async Task<Envios?> ObtenerPorId(int id, int usuarioId)
+    public async Task<Envios?> ObtenerPorId(int id)
     {
-        return await _context.Envios.FirstOrDefaultAsync(e =>
-            e.Id == id && e.UsuarioId == usuarioId
-        );
+        return await _context.Envios.FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task<Envios?> Editar(
@@ -101,16 +99,16 @@ public class EnvioServicio
         int usuarioId,
         string origenCalle,
         int origenAltura,
-        string origenPiso,
-        string origenDepartamento,
+        string? origenPiso,
+        string? origenDepartamento,
         string origenLocalidad,
         string origenProvincia,
         decimal origenLat,
         decimal origenLng,
         string destinoCalle,
         int destinoAltura,
-        string destinoPiso,
-        string destinoDepartamento,
+        string? destinoPiso,
+        string? destinoDepartamento,
         string destinoLocalidad,
         string destinoProvincia,
         decimal destinoLat,

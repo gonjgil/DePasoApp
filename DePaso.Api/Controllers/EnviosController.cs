@@ -59,7 +59,7 @@ public class EnviosController : Controller
     [HttpGet("{id}")]
     public async Task<IActionResult> ObtenerPorId(int id, [FromQuery] int usuarioId)
     {
-        var envio = await _envios.ObtenerPorId(id, usuarioId);
+        var envio = await _envios.ObtenerPorId(id);
 
         if (envio is null)
         {
@@ -213,10 +213,14 @@ public class EnviosController : Controller
             return ValidationProblem(ModelState);
         }
 
-        var origen = modelo.Origen;
-        var destino = modelo.Destino;
-        var origenAltura = origen.Altura;
-        var destinoAltura = destino.Altura;
+        var actual = await _envios.ObtenerPorId(id);
+        if (actual is null)
+        {
+            return NotFound(new { mensaje = "Envío no encontrado." });
+        }
+
+        var (origen, destino) = (modelo.Origen, modelo.Destino);
+        var (origenAltura, destinoAltura) = (origen.Altura, destino.Altura);
 
         if (origenAltura <= 0 || destinoAltura <= 0)
         {
@@ -362,4 +366,16 @@ public class EnviosController : Controller
                 ingresado.Trim(),
                 CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace
             ) == 0;
+
+    private static bool CambioDireccion(
+        DireccionEnvioRegistro nueva,
+        string calle,
+        int altura,
+        string localidad,
+        string provincia
+    ) =>
+        nueva.Altura != altura
+        || !MismoNombre(calle, nueva.Calle)
+        || !MismoNombre(localidad, nueva.Localidad)
+        || !MismoNombre(provincia, nueva.Provincia);
 }
