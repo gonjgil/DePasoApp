@@ -9,10 +9,10 @@
 <div class="viaje-parada" data-parada>
     <div class="viaje-parada-cabeza">
         <strong>Parada <span data-orden>@(i == "__" ? "" : (int.Parse(i) + 1).ToString())</span></strong>
-        <div class="d-flex gap-1">
-            <button type="button" class="btn btn-outline-dark btn-sm" data-subir>Subir</button>
-            <button type="button" class="btn btn-outline-dark btn-sm" data-bajar>Bajar</button>
-            <button type="button" class="btn btn-outline-dark btn-sm" data-quitar>Quitar</button>
+        <div class="d-flex flex-wrap gap-1">
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-subir>Subir</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" data-bajar>Bajar</button>
+            <button type="button" class="btn btn-outline-danger btn-sm" data-quitar>Quitar</button>
         </div>
     </div>
     <div class="row">
@@ -37,20 +37,20 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-lg-3 mb-3">
             <label class="form-label" for="parada-piso-@i">Piso</label>
             <input class="form-control" id="parada-piso-@i" name="Paradas[@i].Piso" data-campo="Piso" value="@Model.Piso" maxlength="10" placeholder="Opcional" />
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-lg-3 mb-3">
             <label class="form-label" for="parada-depto-@i">Departamento</label>
             <input class="form-control" id="parada-depto-@i" name="Paradas[@i].Departamento" data-campo="Departamento" value="@Model.Departamento" maxlength="10" placeholder="Opcional" />
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-lg-3 mb-3">
             <label class="form-label" for="parada-lat-@i">Latitud</label>
             <input class="form-control" id="parada-lat-@i" name="Paradas[@i].Lat" data-campo="Lat" type="number" step="0.000001" value="@Numero(Model.Lat)" />
             <span class="text-danger">@Html.ValidationMessage($"Paradas[{i}].Lat")</span>
         </div>
-        <div class="col-md-3 mb-3">
+        <div class="col-6 col-lg-3 mb-3">
             <label class="form-label" for="parada-lng-@i">Longitud</label>
             <input class="form-control" id="parada-lng-@i" name="Paradas[@i].Lng" data-campo="Lng" type="number" step="0.000001" value="@Numero(Model.Lng)" />
         </div>

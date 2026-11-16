@@ -4,8 +4,25 @@ namespace DePaso.Web.Models;
 
 public class NuevoEnvioViewModel
 {
-    [Required(ErrorMessage = "Ingresá una dirección de origen.")]
+    // TODO: eliminar OrigenDir y DestinoDir, despues de adaptar todo
     public string OrigenDir { get; set; } = "";
+    public string DestinoDir { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una dirección de origen.")]
+    public string OrigenCalle { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una altura de origen.")]
+    public int OrigenAltura { get; set; }
+
+    public string? OrigenPiso { get; set; }
+
+    public string? OrigenDepartamento { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una localidad de origen.")]
+    public string OrigenLocalidad { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una provincia de origen.")]
+    public string OrigenProvincia { get; set; } = "";
 
     [Range(-90, 90, ErrorMessage = "Ingresá una latitud válida.")]
     public decimal OrigenLat { get; set; }
@@ -14,7 +31,20 @@ public class NuevoEnvioViewModel
     public decimal OrigenLng { get; set; }
 
     [Required(ErrorMessage = "Ingresá una dirección de destino.")]
-    public string DestinoDir { get; set; } = "";
+    public string DestinoCalle { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una altura de destino.")]
+    public int DestinoAltura { get; set; }
+
+    public string? DestinoPiso { get; set; }
+
+    public string? DestinoDepartamento { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una localidad de destino.")]
+    public string DestinoLocalidad { get; set; } = "";
+
+    [Required(ErrorMessage = "Ingresá una provincia de destino.")]
+    public string DestinoProvincia { get; set; } = "";
 
     [Range(-90, 90, ErrorMessage = "Ingresá una latitud válida.")]
     public decimal DestinoLat { get; set; }

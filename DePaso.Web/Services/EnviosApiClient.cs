@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using DePaso.Web.Models;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace DePaso.Web.Services;
 
@@ -36,12 +38,18 @@ public class EnviosApiClient
 
     public async Task<(EnvioApiResponse? Envio, string? Error)> CrearAsync(
         int usuarioId,
-        string origenDir,
-        decimal origenLat,
-        decimal origenLng,
-        string destinoDir,
-        decimal destinoLat,
-        decimal destinoLng,
+        string origenCalle,
+        int origenAltura,
+        string? origenPiso,
+        string? origenDepartamento,
+        string origenLocalidad,
+        string origenProvincia,
+        string destinoCalle,
+        int destinoAltura,
+        string? destinoPiso,
+        string? destinoDepartamento,
+        string destinoLocalidad,
+        string destinoProvincia,
         DateOnly fechaLimite,
         decimal pesoKg,
         byte tamanio,
@@ -54,12 +62,24 @@ public class EnviosApiClient
             new
             {
                 UsuarioId = usuarioId,
-                OrigenDir = origenDir,
-                OrigenLat = origenLat,
-                OrigenLng = origenLng,
-                DestinoDir = destinoDir,
-                DestinoLat = destinoLat,
-                DestinoLng = destinoLng,
+                Origen = new
+                {
+                    Calle = origenCalle,
+                    Altura = origenAltura,
+                    Piso = origenPiso,
+                    Departamento = origenDepartamento,
+                    Localidad = origenLocalidad,
+                    Provincia = origenProvincia,
+                },
+                Destino = new
+                {
+                    Calle = destinoCalle,
+                    Altura = destinoAltura,
+                    Piso = destinoPiso,
+                    Departamento = destinoDepartamento,
+                    Localidad = destinoLocalidad,
+                    Provincia = destinoProvincia,
+                },
                 FechaLimite = fechaLimite,
                 PesoKg = pesoKg,
                 Tamanio = tamanio,
@@ -86,12 +106,18 @@ public class EnviosApiClient
     public async Task<(EnvioApiResponse? Envio, string? Error)> EditarAsync(
         int id,
         int usuarioId,
-        string origenDir,
-        decimal origenLat,
-        decimal origenLng,
-        string destinoDir,
-        decimal destinoLat,
-        decimal destinoLng,
+        string origenCalle,
+        int origenAltura,
+        string? origenPiso,
+        string? origenDepartamento,
+        string origenLocalidad,
+        string origenProvincia,
+        string destinoCalle,
+        int destinoAltura,
+        string? destinoPiso,
+        string? destinoDepartamento,
+        string destinoLocalidad,
+        string destinoProvincia,
         DateOnly fechaLimite,
         decimal pesoKg,
         byte tamanio,
@@ -104,12 +130,24 @@ public class EnviosApiClient
             new
             {
                 UsuarioId = usuarioId,
-                OrigenDir = origenDir,
-                OrigenLat = origenLat,
-                OrigenLng = origenLng,
-                DestinoDir = destinoDir,
-                DestinoLat = destinoLat,
-                DestinoLng = destinoLng,
+                Origen = new
+                {
+                    Calle = origenCalle,
+                    Altura = origenAltura,
+                    Piso = origenPiso,
+                    Departamento = origenDepartamento,
+                    Localidad = origenLocalidad,
+                    Provincia = origenProvincia,
+                },
+                Destino = new
+                {
+                    Calle = destinoCalle,
+                    Altura = destinoAltura,
+                    Piso = destinoPiso,
+                    Departamento = destinoDepartamento,
+                    Localidad = destinoLocalidad,
+                    Provincia = destinoProvincia,
+                },
                 FechaLimite = fechaLimite,
                 PesoKg = pesoKg,
                 Tamanio = tamanio,
@@ -143,5 +181,11 @@ public class EnviosApiClient
 
         respuesta.EnsureSuccessStatusCode();
         return true;
+    }
+
+    public Task<JsonElement> SugerirCallesAsync(string texto, CancellationToken ct)
+    {
+        var url = QueryHelpers.AddQueryString("api/envios/sugerir-calles", "texto", texto);
+        return _httpClient.GetFromJsonAsync<JsonElement>(url, ct);
     }
 }

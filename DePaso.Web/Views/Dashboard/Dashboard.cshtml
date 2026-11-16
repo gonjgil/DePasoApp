@@ -1,4 +1,4 @@
-﻿@model DePaso.Logica.Dtos.DashboardResumenDto
+@model DePaso.Logica.Dtos.DashboardResumenDto
 @using System.Globalization
 @using DePaso.Logica.enums
 @{
@@ -12,44 +12,70 @@
     var urlOportunidades = Url.Content("~/Oportunidades");
 }
 
-<link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
 
-<div class="dp-dashboard">
-    <div class="dp-header">
-        <div>
-            <h1 class="dp-title">Hola, @Model.NombreUsuario</h1>
-            <p class="dp-subtitle">Esto pasa con tus viajes y envíos.</p>
-        </div>
-        <div class="dp-actions">
-            <a class="btn btn-outline-dark" href="@urlNuevoEnvio">Nuevo envío</a>
-            <a class="btn btn-outline-dark" href="@urlMisEnvios">Mis envíos</a>
-            <a class="btn btn-dark" href="@urlNuevoViaje">Nuevo viaje</a>
+<section class="dashboard-hero" aria-labelledby="dashboard-title">
+    <div class="dashboard-hero-copy">
+        <h1 id="dashboard-title" class="page-title">Hola, @Model.NombreUsuario</h1>
+        <p>Este es el resumen de tus viajes y envíos.</p>
+        <div class="dashboard-actions">
+            <a class="btn btn-primary" href="@urlNuevoEnvio">
+                <span class="dp-icon icon-plus" aria-hidden="true"></span> Nuevo envío
+            </a>
+            <a class="btn btn-outline-secondary" href="@urlNuevoViaje">
+                <span class="dp-icon icon-map" aria-hidden="true"></span> Nuevo viaje
+            </a>
+            <a class="btn btn-link" href="@urlMisEnvios">Mis envíos <span class="dp-icon icon-arrow" aria-hidden="true"></span></a>
         </div>
     </div>
+    <div class="dashboard-route" aria-hidden="true">
+        <span class="dashboard-route-path"></span>
+        <span class="dashboard-route-stop dashboard-route-start"><span class="dp-icon icon-package"></span></span>
+        <span class="dashboard-route-stop dashboard-route-end"><span class="dp-icon icon-pin"></span></span>
+    </div>
+</section>
 
-    <div class="dp-stats">
-        <div class="dp-card dp-stat" data-testid="stat-viajes">
-            <span class="dp-stat-label">Próximos viajes</span>
-            <span class="dp-stat-value">@Model.ProximosViajes</span>
+<section class="dashboard-summary" aria-labelledby="resumen-title">
+    <h2 id="resumen-title" class="section-heading">Resumen de actividad</h2>
+    <div class="row row-cols-2 row-cols-xl-4 g-3">
+        <div class="col">
+            <div class="surface dp-stat" data-testid="stat-viajes">
+                <span class="icon-tile"><span class="dp-icon icon-calendar" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.ProximosViajes</span>
+                <span class="dp-stat-label">Próximos viajes</span>
+            </div>
         </div>
-        <div class="dp-card dp-stat" data-testid="stat-envios">
-            <span class="dp-stat-label">Envíos pendientes</span>
-            <span class="dp-stat-value">@Model.EnviosPendientes</span>
+        <div class="col">
+            <div class="surface dp-stat" data-testid="stat-envios">
+                <span class="icon-tile"><span class="dp-icon icon-package" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.EnviosPendientes</span>
+                <span class="dp-stat-label">Envíos pendientes</span>
+            </div>
         </div>
-        <div class="dp-card dp-stat" data-testid="stat-oportunidades">
-            <span class="dp-stat-label">Oportunidades</span>
-            <span class="dp-stat-value">@Model.Oportunidades</span>
+        <div class="col">
+            <div class="surface dp-stat" data-testid="stat-oportunidades">
+                <span class="icon-tile"><span class="dp-icon icon-route" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.Oportunidades</span>
+                <span class="dp-stat-label">Oportunidades</span>
+            </div>
         </div>
-        <div class="dp-card dp-stat dp-stat-highlight" data-testid="stat-potencial">
-            <span class="dp-stat-label">Potencial del mes</span>
-            <span class="dp-stat-value">@Moneda(Model.PotencialMes)</span>
-            <span class="dp-stat-note">Estimación, no ganancia efectiva</span>
+        <div class="col">
+            <div class="surface dp-stat dp-stat-highlight" data-testid="stat-potencial">
+                <span class="icon-tile"><span class="dp-icon icon-trend" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Moneda(Model.PotencialMes)</span>
+                <span class="dp-stat-label">Potencial del mes</span>
+                <span class="dp-stat-note">Ganancia estimada</span>
+            </div>
         </div>
     </div>
+</section>
 
-    <div class="dp-panels">
-        <section class="dp-card dp-panel">
-            <h2 class="dp-panel-title">Próximos viajes</h2>
+<div class="row g-3">
+    <div class="col-lg-6">
+        <section class="surface dp-panel h-100">
+            <h2 class="section-heading"><span class="dp-icon icon-calendar" aria-hidden="true"></span> Próximos viajes</h2>
             @if (Model.ListaProximosViajes.Count == 0)
             {
                 <p class="dp-empty">No tenés viajes activos programados.</p>
@@ -60,7 +86,7 @@
                     @foreach (var viaje in Model.ListaProximosViajes)
                     {
                         <li class="dp-list-item">
-                            <div>
+                            <div class="dp-item-copy">
                                 <div class="dp-item-title">@viaje.Origen &rarr; @viaje.Destino</div>
                                 <div class="dp-item-meta">
                                     @viaje.DiasTexto &middot; @viaje.HoraSalida.ToString("HH:mm") &ndash;
@@ -68,15 +94,16 @@
                                     &middot; próxima salida @viaje.ProximaFecha.ToString("dd/MM", es)
                                 </div>
                             </div>
-                            <span class="dp-badge dp-badge-activo">Activo</span>
+                            <span class="badge dp-badge dp-badge-activo">Activo</span>
                         </li>
                     }
                 </ul>
             }
         </section>
-
-        <section class="dp-card dp-panel">
-            <h2 class="dp-panel-title">Envíos pendientes</h2>
+    </div>
+    <div class="col-lg-6">
+        <section class="surface dp-panel h-100">
+            <h2 class="section-heading"><span class="dp-icon icon-package" aria-hidden="true"></span> Envíos pendientes</h2>
             @if (Model.ListaEnviosPendientes.Count == 0)
             {
                 <p class="dp-empty">No tenés envíos pendientes.</p>
@@ -86,19 +113,20 @@
                 <ul class="dp-list">
                     @foreach (var envio in Model.ListaEnviosPendientes)
                     {
-                        var claseEstado = envio.Estado == EstadoEnvio.BuscandoConductor ? "dp-badge-buscando" :
-              "dp-badge-asignado";
+                        var claseEstado = envio.Estado == EstadoEnvio.BuscandoConductor ? "dp-badge-buscando" : "dp-badge-asignado";
                         <li class="dp-list-item">
-                            <div>
+                            <div class="dp-item-copy">
                                 <div class="dp-item-title">@envio.Origen &rarr; @envio.Destino</div>
                                 <div class="dp-item-meta">@envio.Descripcion &middot; @Moneda(envio.Monto)</div>
                             </div>
-                            <span class="dp-badge @claseEstado">@envio.EstadoTexto</span>
+                            <span class="badge dp-badge @claseEstado">@envio.EstadoTexto</span>
                         </li>
                     }
                 </ul>
             }
-            <a class="btn btn-outline-dark dp-panel-link" href="@urlOportunidades">Ver oportunidades</a>
+            <a class="btn btn-link dp-panel-link" href="@urlOportunidades">
+                Ver oportunidades <span class="dp-icon icon-arrow" aria-hidden="true"></span>
+            </a>
         </section>
     </div>
 </div>

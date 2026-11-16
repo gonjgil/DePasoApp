@@ -125,12 +125,6 @@ namespace DePaso.Entidades.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("DestinoDir")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
-
                     b.Property<decimal>("DestinoLat")
                         .HasColumnType("decimal(9, 6)");
 
@@ -171,12 +165,6 @@ namespace DePaso.Entidades.Migrations
                     b.Property<string>("OrigenDepartamento")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("OrigenDir")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
 
                     b.Property<decimal>("OrigenLat")
                         .HasColumnType("decimal(9, 6)");
@@ -357,12 +345,6 @@ namespace DePaso.Entidades.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("DestinoDir")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
-
                     b.Property<decimal>("DestinoLat")
                         .HasColumnType("decimal(9, 6)");
 
@@ -412,12 +394,6 @@ namespace DePaso.Entidades.Migrations
                     b.Property<string>("OrigenDepartamento")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("OrigenDir")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
 
                     b.Property<decimal>("OrigenLat")
                         .HasColumnType("decimal(9, 6)");
