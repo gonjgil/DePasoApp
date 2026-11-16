@@ -14,7 +14,7 @@ public sealed class GeoapifyClient(HttpClient http, IConfiguration configuracion
                 ["text"] = direccion,
                 ["filter"] = "countrycode:ar",
                 ["lang"] = "es",
-                ["limit"] = "5",
+                ["limit"] = "20",
             },
             ct
         );
@@ -74,7 +74,7 @@ public sealed class GeoapifyClient(HttpClient http, IConfiguration configuracion
                 ["type"] = "street",
                 ["filter"] = "countrycode:ar",
                 ["lang"] = "es",
-                ["limit"] = "5",
+                ["limit"] = "20",
             },
             ct
         );
