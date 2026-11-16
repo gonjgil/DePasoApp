@@ -1,6 +1,5 @@
 ﻿using DePaso.Api.Models;
 using DePaso.Logica.dtos;
-using DePaso.Logica.Dtos;
 using DePaso.Logica.servicios;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

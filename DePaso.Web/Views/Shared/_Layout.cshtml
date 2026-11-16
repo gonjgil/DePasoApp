@@ -80,11 +80,11 @@
                             <div class="collapse @(viajesActivo ? "show" : "")" id="menu-viajes">
                                 <ul class="nav-sub">
                                     <li>
-                                        <a class="nav-link @(viajesActivo ? "active" : "")"
+                                        <a class="nav-link @(viajesActivo && accion == "Nuevo" ? "active" : "")"
                                            asp-controller="Viajes" asp-action="Nuevo">Nuevo viaje</a>
                                     </li>
                                     <li>
-                                        <a class="nav-link @(viajesActivo ? "active" : "")"
+                                        <a class="nav-link @(viajesActivo && accion != "Nuevo" ? "active" : "")"
                                            asp-controller="Viajes" asp-action="Index">Mis viajes</a>
                                     </li>
                                 </ul>
