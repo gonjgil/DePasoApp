@@ -49,16 +49,42 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(enviosActivo ? "active" : "")" aria-current="@(enviosActivo ? (accion == "Index" ? "page" : "location") : null)"
-                               asp-controller="Envios" asp-action="Index">
-                                <span class="dp-icon icon-package" aria-hidden="true"></span> Mis envíos
-                            </a>
+                            <button class="nav-link nav-group @(enviosActivo ? "section-active" : "collapsed")" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#menu-envios"
+                                    aria-expanded="@(enviosActivo ? "true" : "false")" aria-controls="menu-envios">
+                                <span class="dp-icon icon-package" aria-hidden="true"></span>
+                                <span>Envíos</span>
+                                <span class="nav-caret" aria-hidden="true"></span>
+                            </button>
+                            <div class="collapse @(enviosActivo ? "show" : "")" id="menu-envios">
+                                <ul class="nav-sub">
+                                    <li>
+                                        <a class="nav-link @(enviosActivo && accion == "Nuevo" ? "active" : "")"
+                                           asp-controller="Envios" asp-action="Nuevo">Nuevo envío</a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link @(enviosActivo && accion != "Nuevo" ? "active" : "")"
+                                           asp-controller="Envios" asp-action="Index">Mis envíos</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(viajesActivo ? "active" : "")" aria-current="@(viajesActivo ? "page" : null)"
-                               asp-controller="Viajes" asp-action="Nuevo">
-                                <span class="dp-icon icon-map" aria-hidden="true"></span> Nuevo viaje
-                            </a>
+                            <button class="nav-link nav-group @(viajesActivo ? "section-active" : "collapsed")" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#menu-viajes"
+                                    aria-expanded="@(viajesActivo ? "true" : "false")" aria-controls="menu-viajes">
+                                <span class="dp-icon icon-map" aria-hidden="true"></span>
+                                <span>Viajes</span>
+                                <span class="nav-caret" aria-hidden="true"></span>
+                            </button>
+                            <div class="collapse @(viajesActivo ? "show" : "")" id="menu-viajes">
+                                <ul class="nav-sub">
+                                    <li>
+                                        <a class="nav-link @(viajesActivo ? "active" : "")"
+                                           asp-controller="Viajes" asp-action="Nuevo">Nuevo viaje</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                     </ul>
                     <ul class="navbar-nav app-nav app-nav-secondary">
