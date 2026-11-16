@@ -22,3 +22,8 @@
     gap: .6rem;
     margin-bottom: .85rem;
 }
+
+/* Mis viajes y Detalle */
+.viajes-filtros .btn { min-width: 5.5rem; }
+.viaje-coordenadas { display: block; font-variant-numeric: tabular-nums; }
+.viaje-volver { transform: rotate(180deg); }

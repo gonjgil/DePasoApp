@@ -1,0 +1,168 @@
+@model DePaso.Logica.dtos.ViajeDetalleDto
+@using System.Globalization
+@using DePaso.Logica.enums
+@{
+    ViewData["Title"] = "Detalle del viaje";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+    string Coordenadas(decimal lat, decimal lng) =>
+        $"{lat.ToString("0.000000", CultureInfo.InvariantCulture)}, {lng.ToString("0.000000", CultureInfo.InvariantCulture)}";
+    string PisoDepto(string? piso, string? depto) =>
+        string.Join(" ", new[] { piso is null ? null : $"Piso {piso}", depto is null ? null : $"Depto {depto}" }.Where(x => x is not null));
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/viaje.css" asp-append-version="true" />
+}
+
+<header class="page-header page-header-split">
+    <div>
+        <h1 class="page-title">@Model.Origen.Calle @Model.Origen.Altura &rarr; @Model.Destino.Calle @Model.Destino.Altura</h1>
+        <p class="page-subtitle">
+            <span class="badge dp-badge @(Model.Activo ? "dp-badge-activo" : "dp-badge-cancelado")">@(Model.Activo ? "Activo" : "Inactivo")</span>
+            @Model.DiasTexto &middot; @Model.HoraSalida.ToString("HH:mm") &ndash; @Model.HoraLlegada.ToString("HH:mm")
+        </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Index" class="btn btn-link">
+            <span class="dp-icon icon-arrow viaje-volver" aria-hidden="true"></span> Mis viajes
+        </a>
+        <form asp-action="@(Model.Activo ? "Desactivar" : "Activar")" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.Id" />
+            @if (Model.Activo)
+            {
+                <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('¿Seguro que querés desactivar este viaje?');">Desactivar</button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary">Activar</button>
+            }
+        </form>
+    </div>
+</header>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<section class="dashboard-summary" aria-labelledby="resumen-viaje">
+    <h2 id="resumen-viaje" class="visually-hidden">Resumen del viaje</h2>
+    <div class="row row-cols-2 row-cols-xl-4 g-3">
+        <div class="col">
+            <div class="surface dp-stat">
+                <span class="icon-tile"><span class="dp-icon icon-map" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.DistanciaKm.ToString("0.0", es) km</span>
+                <span class="dp-stat-label">Distancia</span>
+                <span class="dp-stat-note">@Model.DuracionMin min estimados</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="surface dp-stat">
+                <span class="icon-tile"><span class="dp-icon icon-package" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.MaxPaquetes</span>
+                <span class="dp-stat-label">Paquetes máximos</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="surface dp-stat">
+                <span class="icon-tile"><span class="dp-icon icon-trend" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.PesoMaxKg.ToString("0.##", es) kg</span>
+                <span class="dp-stat-label">Peso máximo</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="surface dp-stat">
+                <span class="icon-tile"><span class="dp-icon icon-route" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.DesvioMaxKm.ToString("0.##", es) km</span>
+                <span class="dp-stat-label">Desvío máximo</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <section class="surface dp-panel h-100">
+            <h2 class="section-heading"><span class="dp-icon icon-pin" aria-hidden="true"></span> Recorrido</h2>
+            <ol class="dp-list viaje-recorrido">
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">Origen: @Model.Origen.Texto</div>
+                        <div class="dp-item-meta">
+                            @PisoDepto(Model.Origen.Piso, Model.Origen.Departamento)
+                            <span class="viaje-coordenadas">@Coordenadas(Model.Origen.Lat, Model.Origen.Lng)</span>
+                        </div>
+                    </div>
+                    <span class="badge dp-badge">Salida</span>
+                </li>
+                @foreach (var parada in Model.Paradas)
+                {
+                    <li class="dp-list-item">
+                        <div class="dp-item-copy">
+                            <div class="dp-item-title">Parada @parada.Orden: @parada.Direccion.Texto</div>
+                            <div class="dp-item-meta">
+                                @PisoDepto(parada.Direccion.Piso, parada.Direccion.Departamento)
+                                <span class="viaje-coordenadas">@Coordenadas(parada.Direccion.Lat, parada.Direccion.Lng)</span>
+                            </div>
+                        </div>
+                        <span class="badge dp-badge">Parada</span>
+                    </li>
+                }
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">Destino: @Model.Destino.Texto</div>
+                        <div class="dp-item-meta">
+                            @PisoDepto(Model.Destino.Piso, Model.Destino.Departamento)
+                            <span class="viaje-coordenadas">@Coordenadas(Model.Destino.Lat, Model.Destino.Lng)</span>
+                        </div>
+                    </div>
+                    <span class="badge dp-badge">Llegada</span>
+                </li>
+            </ol>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="surface dp-panel h-100">
+            <h2 class="section-heading"><span class="dp-icon icon-package" aria-hidden="true"></span> Paquetes asignados</h2>
+            @if (Model.PaquetesAsignados.Count == 0)
+            {
+                <p class="dp-empty">Todavía no tenés paquetes asignados a este viaje.</p>
+            }
+            else
+            {
+                <ul class="dp-list">
+                    @foreach (var paquete in Model.PaquetesAsignados)
+                    {
+                        var claseEstado = paquete.Estado switch
+                        {
+                            EstadoEnvio.ConductorAsignado or EstadoEnvio.Retirado or EstadoEnvio.EnCamino => "dp-badge-asignado",
+                            EstadoEnvio.Entregado => "dp-badge-activo",
+                            EstadoEnvio.Cancelado => "dp-badge-cancelado",
+                            _ => "dp-badge-buscando"
+                        };
+                        <li class="dp-list-item">
+                            <div class="dp-item-copy">
+                                <div class="dp-item-title">@paquete.Descripcion</div>
+                                <div class="dp-item-meta">
+                                    @paquete.Origen &rarr; @paquete.Destino
+                                </div>
+                                <div class="dp-item-meta">
+                                    @paquete.FechaViaje.ToString("dd/MM/yyyy") &middot; @paquete.PesoKg.ToString("0.##", es) kg
+                                    &middot; desvío @paquete.DesvioKm.ToString("0.##", es) km &middot; @Moneda(paquete.Ganancia)
+                                </div>
+                            </div>
+                            <span class="badge dp-badge @claseEstado">@paquete.EstadoTexto</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</div>

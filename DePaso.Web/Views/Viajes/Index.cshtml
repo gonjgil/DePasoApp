@@ -1,0 +1,130 @@
+@model List<DePaso.Logica.dtos.ViajeResumenDto>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Mis viajes";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    var estado = ViewData["Estado"] as string ?? "todos";
+    var filtros = new (string Valor, string Texto)[] { ("todos", "Todos"), ("activos", "Activos"), ("inactivos", "Inactivos") };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/viaje.css" asp-append-version="true" />
+}
+
+<header class="page-header page-header-split">
+    <div>
+        <h1 class="page-title">Mis viajes</h1>
+        <p class="page-subtitle">Tus recorridos habituales. Sólo vos ves estos viajes.</p>
+    </div>
+    <a asp-action="Nuevo" class="btn btn-primary">
+        <span class="dp-icon icon-plus" aria-hidden="true"></span> Nuevo viaje
+    </a>
+</header>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if ((TempData["Error"] ?? ViewData["Error"]) is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<nav class="viajes-filtros mb-3" aria-label="Filtrar por estado">
+    <div class="btn-group" role="group">
+        @foreach (var filtro in filtros)
+        {
+            var activo = filtro.Valor == estado;
+            <a asp-action="Index" asp-route-estado="@filtro.Valor"
+               class="btn btn-sm @(activo ? "btn-primary" : "btn-outline-primary")"
+               aria-current="@(activo ? "page" : null)">@filtro.Texto</a>
+        }
+    </div>
+</nav>
+
+@if (Model.Count == 0)
+{
+    <section class="surface shipments-empty">
+        <span class="icon-tile"><span class="dp-icon icon-map" aria-hidden="true"></span></span>
+        <h2 class="section-heading">
+            @(estado == "todos" ? "Todavía no cargaste viajes" : $"No tenés viajes {estado}")
+        </h2>
+        @if (estado == "todos")
+        {
+            <a asp-action="Nuevo" class="btn btn-outline-primary">Registrar mi primer viaje</a>
+        }
+    </section>
+}
+else
+{
+    <div class="surface table-responsive shipments-surface">
+        <table class="table align-middle shipments-table" role="table">
+            <caption class="visually-hidden">Listado de mis viajes</caption>
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th role="columnheader" scope="col">Origen</th>
+                    <th role="columnheader" scope="col">Destino</th>
+                    <th role="columnheader" scope="col">Días</th>
+                    <th role="columnheader" scope="col">Horario</th>
+                    <th role="columnheader" scope="col">Capacidad</th>
+                    <th role="columnheader" scope="col">Ruta</th>
+                    <th role="columnheader" scope="col">Estado</th>
+                    <th role="columnheader" scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody role="rowgroup">
+                @foreach (var viaje in Model)
+                {
+                    <tr role="row">
+                        <td role="cell" class="shipment-route">
+                            <span class="shipment-mobile-label" aria-hidden="true">Origen</span>
+                            <span class="shipment-address">@viaje.Origen</span>
+                        </td>
+                        <td role="cell" class="shipment-route">
+                            <span class="shipment-mobile-label" aria-hidden="true">Destino</span>
+                            <span class="shipment-address">@viaje.Destino</span>
+                            @if (viaje.CantidadParadas > 0)
+                            {
+                                <span class="shipment-locality">@viaje.CantidadParadas @(viaje.CantidadParadas == 1 ? "parada" : "paradas")</span>
+                            }
+                        </td>
+                        <td role="cell" class="shipment-meta"><span class="shipment-mobile-label" aria-hidden="true">Días</span>@viaje.DiasTexto</td>
+                        <td role="cell" class="shipment-meta"><span class="shipment-mobile-label" aria-hidden="true">Horario</span>@viaje.HoraSalida.ToString("HH:mm") &ndash; @viaje.HoraLlegada.ToString("HH:mm")</td>
+                        <td role="cell" class="shipment-meta">
+                            <span class="shipment-mobile-label" aria-hidden="true">Capacidad</span>
+                            @viaje.MaxPaquetes paq. &middot; @viaje.PesoMaxKg.ToString("0.##", es) kg
+                            @if (viaje.PaquetesEnCurso > 0)
+                            {
+                                <span class="shipment-locality">@viaje.PaquetesEnCurso en curso</span>
+                            }
+                        </td>
+                        <td role="cell" class="shipment-meta"><span class="shipment-mobile-label" aria-hidden="true">Ruta</span>@viaje.DistanciaKm.ToString("0.0", es) km &middot; @viaje.DuracionMin min</td>
+                        <td role="cell" class="shipment-status">
+                            <span class="shipment-mobile-label" aria-hidden="true">Estado</span>
+                            <span class="badge dp-badge @(viaje.Activo ? "dp-badge-activo" : "dp-badge-cancelado")">@(viaje.Activo ? "Activo" : "Inactivo")</span>
+                        </td>
+                        <td role="cell" class="shipment-action-cell">
+                            <div class="shipment-actions">
+                                <a asp-action="Detalle" asp-route-id="@viaje.Id" class="btn btn-sm btn-outline-primary">Ver detalle</a>
+                                <form asp-action="@(viaje.Activo ? "Desactivar" : "Activar")" method="post" class="d-inline">
+                                    <input type="hidden" name="id" value="@viaje.Id" />
+                                    <input type="hidden" name="volverA" value="lista" />
+                                    @Html.AntiForgeryToken()
+                                    @if (viaje.Activo)
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('¿Seguro que querés desactivar este viaje?');">Desactivar</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">Activar</button>
+                                    }
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

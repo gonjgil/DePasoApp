@@ -1,8 +1,11 @@
-using System.Globalization;
+using DePaso.Logica.dtos;
 using DePaso.Web.Models;
+using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Globalization;
+using System.Security.Claims;
 
 namespace DePaso.Web.Controllers;
 
@@ -23,8 +26,7 @@ public sealed class CulturaInvarianteAttribute : Attribute, IResourceFilter
 [CulturaInvariante]
 public class ViajesController : Controller
 {
-
-    private const double VelocidadPromedioKmh = 40;
+    private const string MensajeSinApi = "No se pudo conectar con la API. Verifica que DePaso.Api este corriendo.";
 
     private static readonly string[] CamposQueNoAfectanLaRuta =
     [
@@ -36,6 +38,70 @@ public class ViajesController : Controller
         "DesvioMaxKm",
     ];
 
+    private static readonly string[] FormatosHora = ["HH:mm", "HH:mm:ss", "H:mm", "HH:mm:ss.FFFFFFF"];
+
+    private readonly ViajesApiClient _viajesApi;
+
+    public ViajesController(ViajesApiClient viajesApi)
+    {
+        _viajesApi = viajesApi;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(string? estado)
+    {
+        if (!TryObtenerUsuarioId(out var usuarioId))
+        {
+            return RedirectToAction("Ingresar", "Cuenta");
+        }
+
+        estado = estado?.Trim().ToLowerInvariant() switch
+        {
+            "activos" => "activos",
+            "inactivos" => "inactivos",
+            _ => "todos",
+        };
+        ViewData["Estado"] = estado;
+
+        try
+        {
+            return View(await _viajesApi.ObtenerMiosAsync(usuarioId, estado));
+        }
+        catch (HttpRequestException)
+        {
+            ViewData["Error"] = MensajeSinApi;
+            return View(new List<ViajeResumenDto>());
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Detalle(int id)
+    {
+        if (!TryObtenerUsuarioId(out var usuarioId))
+        {
+            return RedirectToAction("Ingresar", "Cuenta");
+        }
+
+        ViajeDetalleDto? viaje;
+        try
+        {
+            viaje = await _viajesApi.ObtenerPorIdAsync(id, usuarioId);
+        }
+        catch (HttpRequestException)
+        {
+            TempData["Error"] = MensajeSinApi;
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (viaje is null)
+        {
+            TempData["Error"] = "No encontramos ese viaje.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View(viaje);
+    }
+
     [HttpGet]
     public IActionResult Nuevo()
     {
@@ -44,7 +110,7 @@ public class ViajesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Nuevo(NuevoViajeViewModel modelo, string? accion)
+    public async Task<IActionResult> Nuevo(NuevoViajeViewModel modelo, string? accion)
     {
         modelo.Paradas = (modelo.Paradas ?? new()).Where(parada => !parada.EstaVacia()).ToList();
         modelo.Dias = (modelo.Dias ?? new()).Where(dia => dia is >= 1 and <= 7).Distinct().ToList();
@@ -54,6 +120,11 @@ public class ViajesController : Controller
         ModelState.Clear();
         TryValidateModel(modelo);
 
+        if (!TryObtenerUsuarioId(out var usuarioId))
+        {
+            return RedirectToAction("Ingresar", "Cuenta");
+        }
+
         if (accion == "calcular")
         {
             foreach (var campo in CamposQueNoAfectanLaRuta)
@@ -61,10 +132,9 @@ public class ViajesController : Controller
                 ModelState.Remove(campo);
             }
 
-            ValidarCoordenadasParaRuta(modelo);
             if (ModelState.IsValid)
             {
-                (modelo.DistanciaKm, modelo.DuracionMin) = EstimarRuta(modelo);
+                await CalcularRutaAsync(modelo);
             }
 
             return View(modelo);
@@ -75,40 +145,121 @@ public class ViajesController : Controller
             return View(modelo);
         }
 
-        if (TieneCoordenadas(modelo.OrigenLat, modelo.OrigenLng)
-            && TieneCoordenadas(modelo.DestinoLat, modelo.DestinoLng)
-            && modelo.Paradas.All(parada => TieneCoordenadas(parada.Lat, parada.Lng)))
+        try
         {
-            (modelo.DistanciaKm, modelo.DuracionMin) = EstimarRuta(modelo);
-        }
+            var (viaje, error) = await _viajesApi.CrearAsync(usuarioId, modelo);
+            if (error is not null)
+            {
+                ModelState.AddModelError(string.Empty, error);
+                return View(modelo);
+            }
 
-        ViewData["Validado"] = true;
-        return View(modelo);
+            TempData["Mensaje"] = "Guardamos tu viaje.";
+            return RedirectToAction(nameof(Detalle), new { id = viaje!.Id });
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(string.Empty, MensajeSinApi);
+            return View(modelo);
+        }
     }
 
-    private void ValidarCoordenadasParaRuta(NuevoViajeViewModel modelo)
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> Desactivar(int id, string? volverA) =>
+        CambiarEstadoAsync(id, volverA, desactivar: true);
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> Activar(int id, string? volverA) =>
+        CambiarEstadoAsync(id, volverA, desactivar: false);
+
+    private async Task<IActionResult> CambiarEstadoAsync(int id, string? volverA, bool desactivar)
     {
-        if (!TieneCoordenadas(modelo.OrigenLat, modelo.OrigenLng))
+        if (!TryObtenerUsuarioId(out var usuarioId))
         {
-            ModelState.AddModelError(nameof(modelo.OrigenLat), "Completá las coordenadas de origen para calcular la ruta.");
+            return RedirectToAction("Ingresar", "Cuenta");
         }
 
-        if (!TieneCoordenadas(modelo.DestinoLat, modelo.DestinoLng))
+        try
         {
-            ModelState.AddModelError(nameof(modelo.DestinoLat), "Completá las coordenadas de destino para calcular la ruta.");
-        }
+            var error = desactivar
+                ? await _viajesApi.DesactivarAsync(id, usuarioId)
+                : await _viajesApi.ActivarAsync(id, usuarioId);
 
-        for (var i = 0; i < modelo.Paradas.Count; i++)
-        {
-            var parada = modelo.Paradas[i];
-            if (!TieneCoordenadas(parada.Lat, parada.Lng))
+            if (error is null)
             {
-                ModelState.AddModelError($"Paradas[{i}].Lat", "Completá las coordenadas de la parada para calcular la ruta.");
+                TempData["Mensaje"] = desactivar ? "El viaje quedó inactivo." : "El viaje volvió a estar activo.";
+            }
+            else
+            {
+                TempData["Error"] = error;
             }
         }
+        catch (HttpRequestException)
+        {
+            TempData["Error"] = MensajeSinApi;
+        }
+
+        return volverA == "lista"
+            ? RedirectToAction(nameof(Index))
+            : RedirectToAction(nameof(Detalle), new { id });
     }
 
-    private static readonly string[] FormatosHora = ["HH:mm", "HH:mm:ss", "H:mm", "HH:mm:ss.FFFFFFF"];
+    private async Task CalcularRutaAsync(NuevoViajeViewModel modelo)
+    {
+        try
+        {
+            var (ruta, error) = await _viajesApi.CalcularRutaAsync(modelo);
+            if (error is not null)
+            {
+                ModelState.AddModelError(string.Empty, error);
+                return;
+            }
+
+            AplicarRuta(modelo, ruta!);
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(string.Empty, MensajeSinApi);
+        }
+    }
+
+    private void AplicarRuta(NuevoViajeViewModel modelo, RutaDto ruta)
+    {
+        modelo.DistanciaKm = ruta.DistanciaKm;
+        modelo.DuracionMin = ruta.DuracionMin;
+        ViewData["RutaEstimada"] = ruta.Estimada;
+        ViewData["RutaAdvertencia"] = ruta.Advertencia;
+
+        foreach (var punto in ruta.Puntos)
+        {
+            switch (punto.Tipo)
+            {
+                case "Origen":
+                    modelo.OrigenLat = punto.Lat;
+                    modelo.OrigenLng = punto.Lng;
+                    break;
+                case "Destino":
+                    modelo.DestinoLat = punto.Lat;
+                    modelo.DestinoLng = punto.Lng;
+                    break;
+                case "Parada" when punto.Orden >= 1 && punto.Orden <= modelo.Paradas.Count:
+                    modelo.Paradas[punto.Orden - 1].Lat = punto.Lat;
+                    modelo.Paradas[punto.Orden - 1].Lng = punto.Lng;
+                    break;
+            }
+        }
+
+        foreach (var campo in new[] { "OrigenLat", "OrigenLng", "DestinoLat", "DestinoLng" })
+        {
+            ModelState.Remove(campo);
+        }
+    }
+
+    private bool TryObtenerUsuarioId(out int usuarioId) =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out usuarioId);
 
     private static TimeOnly? LeerHora(string? texto)
     {
@@ -127,53 +278,4 @@ public class ViajesController : Controller
             ? hora
             : null;
     }
-
-    private static bool TieneCoordenadas(decimal? lat, decimal? lng) =>
-        lat is not null && lng is not null && (lat != 0 || lng != 0);
-
-    private static bool TieneCoordenadas(decimal lat, decimal lng) => lat != 0 || lng != 0;
-
-    private static (decimal kilometros, int minutos) EstimarRuta(NuevoViajeViewModel modelo)
-    {
-        var puntos = new List<(double Lat, double Lng)>
-        {
-            ((double)modelo.OrigenLat.GetValueOrDefault(), (double)modelo.OrigenLng.GetValueOrDefault()),
-        };
-
-        foreach (var parada in modelo.Paradas)
-        {
-            puntos.Add(((double)parada.Lat, (double)parada.Lng));
-        }
-
-        puntos.Add(((double)modelo.DestinoLat.GetValueOrDefault(), (double)modelo.DestinoLng.GetValueOrDefault()));
-
-        double total = 0;
-        for (var i = 1; i < puntos.Count; i++)
-        {
-            total += DistanciaKm(puntos[i - 1], puntos[i]);
-        }
-
-        var kilometros = Math.Round((decimal)total, 1);
-        var minutos = (int)Math.Round(total / VelocidadPromedioKmh * 60d);
-        if (minutos < 1 && total > 0)
-        {
-            minutos = 1;
-        }
-
-        return (kilometros, minutos);
-    }
-
-    private static double DistanciaKm((double Lat, double Lng) desde, (double Lat, double Lng) hasta)
-    {
-        const double radioKm = 6371;
-        var lat1 = GradosARadianes(desde.Lat);
-        var lat2 = GradosARadianes(hasta.Lat);
-        var dLat = GradosARadianes(hasta.Lat - desde.Lat);
-        var dLng = GradosARadianes(hasta.Lng - desde.Lng);
-        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2)
-            + Math.Cos(lat1) * Math.Cos(lat2) * Math.Sin(dLng / 2) * Math.Sin(dLng / 2);
-        return radioKm * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
-    }
-
-    private static double GradosARadianes(double grados) => grados * Math.PI / 180;
 }

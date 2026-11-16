@@ -1,6 +1,5 @@
 @model NuevoViajeViewModel
 @using System.Globalization
-@using DePaso.Logica.helpers
 @{
     ViewData["Title"] = "Nuevo viaje";
     var es = CultureInfo.GetCultureInfo("es-AR");
@@ -19,19 +18,6 @@
         <h1 class="page-title">Nuevo viaje</h1>
         <p class="page-subtitle">Registrá un recorrido habitual.</p>
     </header>
-
-    @if (ViewData["Validado"] as bool? == true)
-    {
-        <div class="alert alert-success">
-            Los datos cumplen las validaciones del recorrido.
-            Días: @DiasSemana.Formatear(Model.Dias).
-            @if (Model.DistanciaKm is not null)
-            {
-                <span>Estimación sin el servicio de mapas: @Model.DistanciaKm.Value.ToString("0.0", es) km, @Model.DuracionMin
-                    min.</span>
-                }
-            </div>
-        }
 
         <form asp-action="Nuevo" method="post" novalidate id="form-viaje">
             <div asp-validation-summary="ModelOnly" class="text-danger form-summary"></div>
@@ -189,13 +175,23 @@
                     {
                         <p class="mb-1"><strong>@Model.DistanciaKm.Value.ToString("0.0", es) km</strong> · @Model.DuracionMin min
                         </p>
-                        <p class="text-muted mb-0">Estimación de desarrollo, sin el servicio de mapas. Cuando Geoapify esté
-                            conectado a esta pantalla, este valor se reemplaza por la ruta real.</p>
+                        if (ViewData["RutaEstimada"] as bool? == true)
+                        {
+                            <p class="text-muted mb-0">Estimación en línea recta (servicio de mapas no disponible o en modo de prueba).</p>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">Ruta calculada por calles, pasando por las paradas en orden.</p>
+                        }
+                        if (ViewData["RutaAdvertencia"] is string advertencia)
+                        {
+                            <p class="text-danger mb-0 mt-1">@advertencia</p>
+                        }
                         }
             else
                         {
-                            <p class="text-muted mb-0">Calculá la ruta para ver la distancia y el tiempo estimados. Hacen falta las
-                                coordenadas de origen, destino y de cada parada.</p>
+                            <p class="text-muted mb-0">Calculá la ruta para ver la distancia y el tiempo estimados. Las direcciones
+                                se ubican automáticamente.</p>
                             }
                         </section>
 
@@ -203,7 +199,7 @@
                             <button type="submit" class="btn btn-outline-secondary" name="accion" value="calcular">Calcular
                                 ruta</button>
                                 <button type="submit" class="btn btn-primary" name="accion" value="guardar">Guardar viaje</button>
-                                <a class="btn btn-link" asp-controller="Dashboard" asp-action="Index">Cancelar</a>
+                                <a class="btn btn-link" asp-action="Index">Cancelar</a>
                             </div>
                         </form>
                     </div>
