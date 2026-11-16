@@ -25,6 +25,7 @@
     <ProjectReference Include="../DePaso.Entidades/DePaso.Entidades.csproj" />
     <ProjectReference Include="../DePaso.Logica/DePaso.Logica.csproj" />
     <ProjectReference Include="../DePaso.Web/DePaso.Web.csproj" />
+    <ProjectReference Include="..\DePaso.Api\DePaso.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

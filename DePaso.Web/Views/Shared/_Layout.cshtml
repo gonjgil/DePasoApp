@@ -55,9 +55,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link @(viajesActivo ? "active" : "")" aria-current="@(viajesActivo ? "page" : null)"
-                               asp-controller="Viajes" asp-action="Nuevo">
-                                <span class="dp-icon icon-map" aria-hidden="true"></span> Nuevo viaje
+                            <a class="nav-link @(viajesActivo ? "active" : "")" aria-current="@(viajesActivo ? (accion == "Index" ? "page" : "location") : null)"
+                               asp-controller="Viajes" asp-action="Index">
+                                <span class="dp-icon icon-map" aria-hidden="true"></span> Mis viajes
                             </a>
                         </li>
                     </ul>

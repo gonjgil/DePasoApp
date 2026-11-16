@@ -24,6 +24,14 @@ builder.Services.AddHttpClient<EnviosApiClient>(client =>
     );
 });
 
+builder.Services.AddHttpClient<ViajesApiClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiUrl"]
+            ?? throw new InvalidOperationException("No se configuró ApiUrl.")
+    );
+});
+
 builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
 builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
 builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();

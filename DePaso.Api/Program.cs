@@ -1,3 +1,4 @@
+using DePaso.Api.Config;
 using DePaso.Api.Services;
 using DePaso.Entidades;
 using DePaso.Logica;
@@ -14,6 +15,8 @@ builder.Services.AddScoped<UsuarioServicio>();
 builder.Services.AddScoped<EnvioServicio>();
 
 builder.Services.AddControllers();
+
+builder.Services.AgregarModuloViajes(builder.Configuration);
 
 builder.Services.AddHttpClient<GeoapifyClient>(http =>
 {
