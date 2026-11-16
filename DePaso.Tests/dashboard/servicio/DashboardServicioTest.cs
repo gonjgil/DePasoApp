@@ -28,8 +28,6 @@ namespace DePaso.Tests.dashboard.servicio
             Sembrar.Envio(ctx, 5, usuarioId, 2500, pesoKg: 1, desvioKm: 0.5m); 
         }
 
-        // ---------- Usuario ----------
-
         [Fact]
         public async Task UsuarioInexistente_DevuelveNull()
         {
@@ -66,8 +64,6 @@ namespace DePaso.Tests.dashboard.servicio
             Assert.Equal(0, r.Oportunidades);
             Assert.Equal(0m, r.PotencialMes);
         }
-
-        // ---------- Próximos viajes ----------
 
         [Fact]
         public async Task ViajesInactivosOAjenosNoCuentan()
@@ -152,8 +148,6 @@ namespace DePaso.Tests.dashboard.servicio
             Assert.Equal(DashboardServicio.MAX_ITEMS_LISTA, r.ListaEnviosPendientes.Count);
         }
 
-        // ---------- Envíos pendientes ----------
-
         [Fact]
         public async Task EnviosPendientes_SoloPropiosYSoloBuscandoOAsignado_OrdenadosPorFechaLimite()
         {
@@ -180,8 +174,6 @@ namespace DePaso.Tests.dashboard.servicio
             Assert.Equal("Paquete", r.ListaEnviosPendientes[0].Descripcion);
             Assert.Equal(new DateOnly(2026, 11, 1), r.ListaEnviosPendientes[0].FechaLimite);
         }
-
-        // ---------- Oportunidades ----------
 
         [Fact]
         public async Task ViajeActivoSinEnviosDisponibles_NoTieneOportunidadesNiPotencial()
@@ -301,8 +293,6 @@ namespace DePaso.Tests.dashboard.servicio
                 Assert.Equal(esperado[i], lats[i], 6);
             }
         }
-
-        // ---------- Potencial del mes ----------
 
         [Fact]
         public async Task Potencial_EjemploDelEnunciado_ReparteLosEnviosEntreLasSalidasDelMes()
