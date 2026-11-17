@@ -1,7 +1,13 @@
 @model NuevoViajeViewModel
 @using System.Globalization
 @{
-    ViewData["Title"] = "Nuevo viaje";
+    var editando = string.Equals(
+        ViewContext.RouteData.Values["action"]?.ToString(),
+        "Editar",
+        StringComparison.OrdinalIgnoreCase
+    );
+    var viajeId = ViewContext.RouteData.Values["id"];
+    ViewData["Title"] = editando ? "Editar viaje" : "Nuevo viaje";
     var es = CultureInfo.GetCultureInfo("es-AR");
     var dias = new (byte Numero, string Nombre)[]
     {
@@ -15,11 +21,11 @@
 
 <div class="form-page viaje-pagina">
     <header class="page-header">
-        <h1 class="page-title">Nuevo viaje</h1>
-        <p class="page-subtitle">Registrá un recorrido habitual.</p>
+        <h1 class="page-title">@(editando ? "Editar viaje" : "Nuevo viaje")</h1>
+        <p class="page-subtitle">@(editando ? "Cambiá un recorrido que ya cargaste." : "Registrá un recorrido habitual.")</p>
     </header>
 
-        <form asp-action="Nuevo" method="post" novalidate id="form-viaje">
+        <form asp-action="@(editando ? "Editar" : "Nuevo")" asp-route-id="@(editando ? viajeId : null)" method="post" novalidate id="form-viaje">
             <div asp-validation-summary="ModelOnly" class="text-danger form-summary"></div>
 
             <div class="row g-3 mb-3">
@@ -173,33 +179,41 @@
                     <h2 class="section-heading"><span class="dp-icon icon-map" aria-hidden="true"></span> Ruta</h2>
                     @if (Model.DistanciaKm is not null)
                     {
-                        <p class="mb-1"><strong>@Model.DistanciaKm.Value.ToString("0.0", es) km</strong> · @Model.DuracionMin min
-                        </p>
-                        if (ViewData["RutaEstimada"] as bool? == true)
+                        <p class="mb-1"><strong>@Model.DistanciaKm.Value.ToString("0.0", es) km</strong> · @Model.DuracionMin min</p>
+                        if (ViewData["RutaEstimada"] is bool estimada)
                         {
-                            <p class="text-muted mb-0">Estimación en línea recta (servicio de mapas no disponible o en modo de prueba).</p>
-                        }
-                        else
-                        {
-                            <p class="text-muted mb-0">Ruta calculada por calles, pasando por las paradas en orden.</p>
-                        }
-                        if (ViewData["RutaAdvertencia"] is string advertencia)
-                        {
-                            <p class="text-danger mb-0 mt-1">@advertencia</p>
-                        }
-                        }
-            else
-                        {
-                            <p class="text-muted mb-0">Calculá la ruta para ver la distancia y el tiempo estimados. Las direcciones
-                                se ubican automáticamente.</p>
+                            if (estimada)
+                            {
+                                <p class="text-muted mb-0">Estimación en línea recta (servicio de mapas no disponible o en modo de prueba).</p>
                             }
+                            else
+                            {
+                                <p class="text-muted mb-0">Ruta calculada por calles, pasando por las paradas en orden.</p>
+                            }
+                            if (ViewData["RutaAdvertencia"] is string advertencia)
+                            {
+                                <p class="text-danger mb-0 mt-1">@advertencia</p>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0">Calculá la ruta para ver la distancia y el tiempo estimados. Las direcciones se ubican automáticamente.</p>
+                    }
                         </section>
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-outline-secondary" name="accion" value="calcular">Calcular
                                 ruta</button>
-                                <button type="submit" class="btn btn-primary" name="accion" value="guardar">Guardar viaje</button>
-                                <a class="btn btn-link" asp-action="Index">Cancelar</a>
+                                <button type="submit" class="btn btn-primary" name="accion" value="guardar">@(editando ? "Guardar cambios" : "Guardar viaje")</button>
+                                @if (editando)
+                                {
+                                    <a class="btn btn-link" asp-action="Detalle" asp-route-id="@viajeId">Cancelar</a>
+                                }
+                                else
+                                {
+                                    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+                                }
                             </div>
                         </form>
                     </div>

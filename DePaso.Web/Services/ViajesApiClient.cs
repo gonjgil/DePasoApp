@@ -68,6 +68,37 @@ public class ViajesApiClient
         return (await respuesta.Content.ReadFromJsonAsync<ViajeDetalleDto>(), null);
     }
 
+    public async Task<(ViajeDetalleDto? Viaje, string? Error)> ActualizarAsync(
+        int id,
+        int usuarioId,
+        NuevoViajeViewModel modelo
+    )
+    {
+        var respuesta = await _httpClient.PutAsJsonAsync(
+            $"api/viajes/{id}",
+            new
+            {
+                UsuarioId = usuarioId,
+                Origen = Origen(modelo),
+                Destino = Destino(modelo),
+                Dias = modelo.Dias,
+                HoraSalida = modelo.HoraSalida,
+                HoraLlegada = modelo.HoraLlegada,
+                MaxPaquetes = modelo.MaxPaquetes,
+                PesoMaxKg = modelo.PesoMaxKg,
+                DesvioMaxKm = modelo.DesvioMaxKm,
+                Paradas = Paradas(modelo),
+            }
+        );
+
+        if (!respuesta.IsSuccessStatusCode)
+        {
+            return (null, await LeerErrorAsync(respuesta, "No se pudo actualizar el viaje."));
+        }
+
+        return (await respuesta.Content.ReadFromJsonAsync<ViajeDetalleDto>(), null);
+    }
+
     public async Task<(RutaDto? Ruta, string? Error)> CalcularRutaAsync(NuevoViajeViewModel modelo)
     {
         var respuesta = await _httpClient.PostAsJsonAsync(
