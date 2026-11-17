@@ -1,0 +1,65 @@
+@model DePaso.Logica.Dtos.HistorialDto
+@using System.Globalization
+@{
+    ViewData["Title"] = "Historial";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header">
+    <h1 class="page-title">Historial</h1>
+    <p class="page-subtitle">Operaciones anteriores.</p>
+</header>
+
+<section class="dashboard-summary" aria-labelledby="historial-resumen">
+    <h2 id="historial-resumen" class="visually-hidden">Resumen</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        <div class="col">
+            <div class="surface dp-stat">
+                <span class="icon-tile"><span class="dp-icon icon-map" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.ViajesRealizados</span>
+                <span class="dp-stat-label">Viajes realizados</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="surface dp-stat">
+                <span class="icon-tile"><span class="dp-icon icon-package" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Model.EnviosTransportados</span>
+                <span class="dp-stat-label">Envíos transportados</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="surface dp-stat dp-stat-highlight">
+                <span class="icon-tile"><span class="dp-icon icon-trend" aria-hidden="true"></span></span>
+                <span class="dp-stat-value">@Moneda(Model.GananciaEfectiva)</span>
+                <span class="dp-stat-label">Ganancia efectiva</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="surface dp-panel mt-3">
+    @if (Model.Operaciones.Count == 0)
+    {
+        <p class="dp-empty">Todavía no tenés operaciones anteriores.</p>
+    }
+    else
+    {
+        <ul class="dp-list">
+            @foreach (var operacion in Model.Operaciones)
+            {
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">@operacion.Origen &rarr; @operacion.Destino</div>
+                        <div class="dp-item-meta">@operacion.Detalle</div>
+                    </div>
+                    <b>@Moneda(operacion.Ganancia)</b>
+                </li>
+            }
+        </ul>
+    }
+</section>
