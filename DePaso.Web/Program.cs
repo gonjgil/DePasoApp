@@ -35,6 +35,7 @@ builder.Services.AddHttpClient<ViajesApiClient>(client =>
 builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
 builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
 builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
+builder.Services.AddScoped<IHistorialServicio, HistorialServicio>();
 
 builder.Services.AddDbContext<DePasoAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))

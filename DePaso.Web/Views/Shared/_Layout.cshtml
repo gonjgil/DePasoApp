@@ -7,11 +7,13 @@
         "Dashboard" => "Panel",
         "Envios" => "Envíos",
         "Viajes" => "Viajes",
+        "Historial" => "Historial",
         _ => ViewData["Title"]?.ToString() ?? "Inicio"
     };
     var inicioActivo = controlador == "Dashboard";
     var enviosActivo = controlador == "Envios";
     var viajesActivo = controlador == "Viajes";
+    var historialActivo = controlador == "Historial";
     var privacidadActiva = controlador == "Home" && accion == "Privacy";
 }
 <!DOCTYPE html>
@@ -89,6 +91,12 @@
                                     </li>
                                 </ul>
                             </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(historialActivo ? "active" : "")" aria-current="@(historialActivo ? "page" : null)"
+                               asp-controller="Historial" asp-action="Index">
+                                <span class="dp-icon icon-calendar" aria-hidden="true"></span> Historial
+                            </a>
                         </li>
                     </ul>
                     <ul class="navbar-nav app-nav app-nav-secondary">
