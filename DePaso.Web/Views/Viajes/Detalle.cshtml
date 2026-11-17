@@ -28,6 +28,7 @@
         <a asp-action="Index" class="btn btn-link">
             <span class="dp-icon icon-arrow viaje-volver" aria-hidden="true"></span> Mis viajes
         </a>
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Editar</a>
         <form asp-action="@(Model.Activo ? "Desactivar" : "Activar")" method="post" class="d-inline">
             <input type="hidden" name="id" value="@Model.Id" />
             @if (Model.Activo)

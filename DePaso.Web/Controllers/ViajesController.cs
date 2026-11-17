@@ -110,59 +110,46 @@ public class ViajesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Nuevo(NuevoViajeViewModel modelo, string? accion)
+    public Task<IActionResult> Nuevo(NuevoViajeViewModel modelo, string? accion) =>
+        ProcesarFormulario(modelo, accion, _viajesApi.CrearAsync, "Guardamos tu viaje.");
+
+    [HttpGet]
+    public async Task<IActionResult> Editar(int id)
     {
-        modelo.Paradas = (modelo.Paradas ?? new()).Where(parada => !parada.EstaVacia()).ToList();
-        modelo.Dias = (modelo.Dias ?? new()).Where(dia => dia is >= 1 and <= 7).Distinct().ToList();
-        modelo.HoraSalida = LeerHora(Request.Form["HoraSalida"]);
-        modelo.HoraLlegada = LeerHora(Request.Form["HoraLlegada"]);
-
-        ModelState.Clear();
-        TryValidateModel(modelo);
-
         if (!TryObtenerUsuarioId(out var usuarioId))
         {
             return RedirectToAction("Ingresar", "Cuenta");
         }
 
-        if (accion == "calcular")
-        {
-            foreach (var campo in CamposQueNoAfectanLaRuta)
-            {
-                ModelState.Remove(campo);
-            }
-
-            if (ModelState.IsValid)
-            {
-                await CalcularRutaAsync(modelo);
-            }
-
-            return View(modelo);
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return View(modelo);
-        }
-
+        ViajeDetalleDto? viaje;
         try
         {
-            var (viaje, error) = await _viajesApi.CrearAsync(usuarioId, modelo);
-            if (error is not null)
-            {
-                ModelState.AddModelError(string.Empty, error);
-                return View(modelo);
-            }
-
-            TempData["Mensaje"] = "Guardamos tu viaje.";
-            return RedirectToAction(nameof(Detalle), new { id = viaje!.Id });
+            viaje = await _viajesApi.ObtenerPorIdAsync(id, usuarioId);
         }
         catch (HttpRequestException)
         {
-            ModelState.AddModelError(string.Empty, MensajeSinApi);
-            return View(modelo);
+            TempData["Error"] = MensajeSinApi;
+            return RedirectToAction(nameof(Index));
         }
+
+        if (viaje is null)
+        {
+            TempData["Error"] = "No encontramos ese viaje.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        return View("Nuevo", AFormulario(viaje));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public Task<IActionResult> Editar(int id, NuevoViajeViewModel modelo, string? accion) =>
+        ProcesarFormulario(
+            modelo,
+            accion,
+            (usuarioId, formulario) => _viajesApi.ActualizarAsync(id, usuarioId, formulario),
+            "Actualizamos tu viaje."
+        );
 
 
     [HttpPost]
@@ -206,6 +193,108 @@ public class ViajesController : Controller
             ? RedirectToAction(nameof(Index))
             : RedirectToAction(nameof(Detalle), new { id });
     }
+
+    private async Task<IActionResult> ProcesarFormulario(
+        NuevoViajeViewModel modelo,
+        string? accion,
+        Func<int, NuevoViajeViewModel, Task<(ViajeDetalleDto? Viaje, string? Error)>> guardar,
+        string mensajeOk
+    )
+    {
+        modelo.Paradas = (modelo.Paradas ?? new()).Where(parada => !parada.EstaVacia()).ToList();
+        modelo.Dias = (modelo.Dias ?? new()).Where(dia => dia is >= 1 and <= 7).Distinct().ToList();
+        modelo.HoraSalida = LeerHora(Request.Form["HoraSalida"]);
+        modelo.HoraLlegada = LeerHora(Request.Form["HoraLlegada"]);
+
+        ModelState.Clear();
+        TryValidateModel(modelo);
+
+        if (!TryObtenerUsuarioId(out var usuarioId))
+        {
+            return RedirectToAction("Ingresar", "Cuenta");
+        }
+
+        if (accion == "calcular")
+        {
+            foreach (var campo in CamposQueNoAfectanLaRuta)
+            {
+                ModelState.Remove(campo);
+            }
+
+            if (ModelState.IsValid)
+            {
+                await CalcularRutaAsync(modelo);
+            }
+
+            return View("Nuevo", modelo);
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View("Nuevo", modelo);
+        }
+
+        try
+        {
+            var (viaje, error) = await guardar(usuarioId, modelo);
+            if (error is not null)
+            {
+                ModelState.AddModelError(string.Empty, error);
+                return View("Nuevo", modelo);
+            }
+
+            TempData["Mensaje"] = mensajeOk;
+            return RedirectToAction(nameof(Detalle), new { id = viaje!.Id });
+        }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(string.Empty, MensajeSinApi);
+            return View("Nuevo", modelo);
+        }
+    }
+
+    private static NuevoViajeViewModel AFormulario(ViajeDetalleDto viaje) =>
+        new()
+        {
+            OrigenCalle = viaje.Origen.Calle,
+            OrigenAltura = viaje.Origen.Altura,
+            OrigenPiso = viaje.Origen.Piso,
+            OrigenDepartamento = viaje.Origen.Departamento,
+            OrigenLocalidad = viaje.Origen.Localidad,
+            OrigenProvincia = viaje.Origen.Provincia,
+            OrigenLat = viaje.Origen.Lat,
+            OrigenLng = viaje.Origen.Lng,
+            DestinoCalle = viaje.Destino.Calle,
+            DestinoAltura = viaje.Destino.Altura,
+            DestinoPiso = viaje.Destino.Piso,
+            DestinoDepartamento = viaje.Destino.Departamento,
+            DestinoLocalidad = viaje.Destino.Localidad,
+            DestinoProvincia = viaje.Destino.Provincia,
+            DestinoLat = viaje.Destino.Lat,
+            DestinoLng = viaje.Destino.Lng,
+            Dias = viaje.Dias,
+            HoraSalida = viaje.HoraSalida,
+            HoraLlegada = viaje.HoraLlegada,
+            MaxPaquetes = viaje.MaxPaquetes,
+            PesoMaxKg = viaje.PesoMaxKg,
+            DesvioMaxKm = viaje.DesvioMaxKm,
+            DistanciaKm = viaje.DistanciaKm,
+            DuracionMin = viaje.DuracionMin,
+            Paradas = viaje
+                .Paradas.OrderBy(parada => parada.Orden)
+                .Select(parada => new ParadaViajeViewModel
+                {
+                    Calle = parada.Direccion.Calle,
+                    Altura = parada.Direccion.Altura,
+                    Piso = parada.Direccion.Piso,
+                    Departamento = parada.Direccion.Departamento,
+                    Localidad = parada.Direccion.Localidad,
+                    Provincia = parada.Direccion.Provincia,
+                    Lat = parada.Direccion.Lat,
+                    Lng = parada.Direccion.Lng,
+                })
+                .ToList(),
+        };
 
     private async Task CalcularRutaAsync(NuevoViajeViewModel modelo)
     {
