@@ -8,11 +8,15 @@
         "Envios" => "Envíos",
         "Viajes" => "Viajes",
         "Historial" => "Historial",
+        "Oportunidades" => "Oportunidades",
+        "Transportes" => "Mis transportes",
         _ => ViewData["Title"]?.ToString() ?? "Inicio"
     };
     var inicioActivo = controlador == "Dashboard";
     var enviosActivo = controlador == "Envios";
     var viajesActivo = controlador == "Viajes";
+    var oportunidadesActivo = controlador == "Oportunidades";
+    var transportesActivo = controlador == "Transportes";
     var historialActivo = controlador == "Historial";
     var privacidadActiva = controlador == "Home" && accion == "Privacy";
 }
@@ -91,6 +95,18 @@
                                     </li>
                                 </ul>
                             </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(oportunidadesActivo ? "active" : "")" aria-current="@(oportunidadesActivo ? "page" : null)"
+                               asp-controller="Oportunidades" asp-action="Index">
+                                <span class="dp-icon icon-trend" aria-hidden="true"></span> Oportunidades
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link @(transportesActivo ? "active" : "")" aria-current="@(transportesActivo ? "page" : null)"
+                               asp-controller="Transportes" asp-action="Index">
+                                <span class="dp-icon icon-route" aria-hidden="true"></span> Mis transportes
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(historialActivo ? "active" : "")" aria-current="@(historialActivo ? "page" : null)"

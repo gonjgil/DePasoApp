@@ -1,0 +1,86 @@
+@model List<DePaso.Logica.dtos.TransporteDto>
+@using System.Globalization
+@using DePaso.Logica.enums
+@{
+    ViewData["Title"] = "Mis transportes";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+    string ClaseEstado(byte estado) => (EstadoEnvio)estado switch
+    {
+        EstadoEnvio.BuscandoConductor => "dp-badge-buscando",
+        EstadoEnvio.Entregado => "dp-badge-activo",
+        _ => "dp-badge-asignado",
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Mis transportes</h1>
+        <p class="page-subtitle">Envíos que aceptaste. Avanzá cada uno cuando lo retires, lo lleves y lo entregues.</p>
+    </div>
+</header>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if ((TempData["Error"] ?? ViewData["Error"]) is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (Model.Count == 0)
+{
+    <section class="surface shipments-empty">
+        <span class="icon-tile"><span class="dp-icon icon-route" aria-hidden="true"></span></span>
+        <h2 class="section-heading">Todavía no aceptaste envíos</h2>
+        <a asp-controller="Oportunidades" asp-action="Index" class="btn btn-outline-primary">Ver oportunidades</a>
+    </section>
+}
+else
+{
+    <section class="surface dp-panel">
+        @foreach (var t in Model)
+        {
+            <div class="dp-fila">
+                <div class="dp-item-copy dp-fila-copy">
+                    <div class="dp-item-title">@t.Origen &rarr; @t.Destino</div>
+                    <div class="dp-item-meta">
+                        @t.FechaViaje.ToString("dddd dd/MM", es) &middot; sale @t.HoraSalida.ToString("HH:mm")
+                        &middot; @t.KilosKg.ToString("0.##", es) kg &middot; pago @Moneda(t.Pago)
+                    </div>
+                </div>
+                <div class="dp-fila-celda">
+                    <span class="badge dp-badge @ClaseEstado(t.Estado)">@t.EstadoTexto</span>
+                </div>
+                <div class="dp-fila-celda">
+                    @if (t.Siguiente is byte)
+                    {
+                        <form method="post" asp-action="Avanzar">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="asignacionId" value="@t.AsignacionId" />
+                            <input type="hidden" name="estadoEsperado" value="@t.Estado" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Pasar a @t.SiguienteTexto</button>
+                        </form>
+                    }
+                </div>
+                <div class="dp-fila-celda">
+                    @if (t.Estado == (byte)EstadoEnvio.ConductorAsignado)
+                    {
+                        <form method="post" asp-action="Cancelar"
+                              onsubmit="return confirm('¿Seguro que querés cancelar esta asignación? El envío vuelve a Oportunidades.');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="asignacionId" value="@t.AsignacionId" />
+                            <input type="hidden" name="estadoEsperado" value="@t.Estado" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </section>
+}

@@ -4,6 +4,8 @@ using DePaso.Logica.enums;
 using DePaso.Logica.helpers;
 using Microsoft.EntityFrameworkCore;
 
+using Ocurrencia = DePaso.Logica.helpers.ReglasCoincidencia.Ocurrencia;
+
 namespace DePaso.Logica.servicios
 {
     public class DashboardServicio : IDashboardServicio
@@ -55,7 +57,7 @@ namespace DePaso.Logica.servicios
                 .Where(v => v.UsuarioId == usuarioId && v.Activo == true)
                 .ToListAsync(cancelacion);
 
-            var ocurrencias = GenerarOcurrencias(viajes, hoy, horaActual);
+            var ocurrencias = ReglasCoincidencia.GenerarOcurrencias(viajes, hoy, horaActual, DIAS_VENTANA);
 
             var proximos = ocurrencias.GroupBy(o => o.Viaje.Id).Select(g => g.First()).ToList();
 
@@ -139,46 +141,30 @@ namespace DePaso.Logica.servicios
             var ocupacion = await _context
                 .Asignaciones.AsNoTracking()
                 .Where(a => viajeIds.Contains(a.ViajeId) && a.FechaViaje >= hoy)
-                .Select(a => new
-                {
+                .Select(a => new ReglasCoincidencia.OcupacionSalida(
                     a.ViajeId,
                     a.FechaViaje,
-                    a.DesvioKm,
-                    PesoKg = a.Envio.PesoKg,
-                })
+                    a.Envio.PesoKg,
+                    a.DesvioKm
+                ))
                 .ToListAsync(cancelacion);
 
-            var rutas = viajes.ToDictionary(v => v.Id, ConstruirRuta);
+            var rutas = viajes.ToDictionary(v => v.Id, ReglasCoincidencia.ConstruirRuta);
             var desvios = new Dictionary<(int ViajeId, int EnvioId), decimal>();
 
             decimal DesvioDe(Viajes viaje, Envios envio)
             {
                 if (!desvios.TryGetValue((viaje.Id, envio.Id), out var desvio))
                 {
-                    var km = _estimador.CalcularDesvioKm(
-                        rutas[viaje.Id],
-                        new Coordenada((double)envio.OrigenLat, (double)envio.OrigenLng),
-                        new Coordenada((double)envio.DestinoLat, (double)envio.DestinoLng)
-                    );
-                    desvio = decimal.Round((decimal)km, 2);
+                    desvio = ReglasCoincidencia.Desvio(_estimador, rutas[viaje.Id], envio);
                     desvios[(viaje.Id, envio.Id)] = desvio;
                 }
 
                 return desvio;
             }
 
-            // Capacidad que queda en esa salida después de las asignaciones ya confirmadas.
-            LimitesViaje Restantes(Ocurrencia o)
-            {
-                var asignadas = ocupacion
-                    .Where(a => a.ViajeId == o.Viaje.Id && a.FechaViaje == o.Fecha)
-                    .ToList();
-                return new LimitesViaje(
-                    o.Viaje.MaxPaquetes - asignadas.Count,
-                    o.Viaje.PesoMaxKg - asignadas.Sum(a => a.PesoKg),
-                    o.Viaje.DesvioMaxKm - asignadas.Sum(a => a.DesvioKm)
-                );
-            }
+            LimitesViaje Restantes(Ocurrencia o) =>
+                ReglasCoincidencia.Restantes(o.Viaje, o.Fecha, ocupacion);
 
             List<CandidatoEnvio> Elegibles(
                 Ocurrencia o,
@@ -191,14 +177,17 @@ namespace DePaso.Logica.servicios
                     return new List<CandidatoEnvio>();
                 }
 
-                return candidatos
-                    .Where(e =>
-                        e.FechaLimite >= o.Fecha
-                        && e.PesoKg <= limites.PesoMaxKg
-                        && (excluidos == null || !excluidos.Contains(e.Id))
+                return ReglasCoincidencia
+                    .Evaluar(
+                        candidatos.Where(e =>
+                            e.FechaLimite >= o.Fecha
+                            && (excluidos == null || !excluidos.Contains(e.Id))
+                        ),
+                        limites,
+                        e => DesvioDe(o.Viaje, e)
                     )
-                    .Select(e => new CandidatoEnvio(e.Id, e.Monto, e.PesoKg, DesvioDe(o.Viaje, e)))
-                    .Where(c => c.DesvioKm <= limites.DesvioMaxKm)
+                    .Where(x => x.Entra)
+                    .Select(x => new CandidatoEnvio(x.Envio.Id, x.Envio.Monto, x.Envio.PesoKg, x.DesvioKm))
                     .ToList();
             }
 
@@ -230,55 +219,6 @@ namespace DePaso.Logica.servicios
             return (oportunidades.Count, potencial);
         }
 
-        private static List<Coordenada> ConstruirRuta(Viajes viaje)
-        {
-            var puntos = new List<Coordenada>
-            {
-                new((double)viaje.OrigenLat, (double)viaje.OrigenLng),
-            };
-            puntos.AddRange(
-                viaje
-                    .Paradas.OrderBy(p => p.Orden)
-                    .Select(p => new Coordenada((double)p.Lat, (double)p.Lng))
-            );
-            puntos.Add(new Coordenada((double)viaje.DestinoLat, (double)viaje.DestinoLng));
-            return puntos;
-        }
-
-        private static List<Ocurrencia> GenerarOcurrencias(
-            IEnumerable<Viajes> viajes,
-            DateOnly hoy,
-            TimeOnly horaActual
-        )
-        {
-            var resultado = new List<Ocurrencia>();
-            foreach (var viaje in viajes)
-            {
-                var dias = viaje.ViajeDia.Select(d => d.DiaSemana).ToHashSet();
-                for (var i = 0; i < DIAS_VENTANA; i++)
-                {
-                    var fecha = hoy.AddDays(i);
-                    if (!dias.Contains(DiasSemana.Numero(fecha.DayOfWeek)))
-                    {
-                        continue;
-                    }
-
-                    if (i == 0 && viaje.HoraSalida <= horaActual)
-                    {
-                        continue;
-                    }
-
-                    resultado.Add(new Ocurrencia(viaje, fecha));
-                }
-            }
-
-            return resultado
-                .OrderBy(o => o.Fecha)
-                .ThenBy(o => o.Viaje.HoraSalida)
-                .ThenBy(o => o.Viaje.Id)
-                .ToList();
-        }
-
         private static ViajeProximoDto AViajeDto(Ocurrencia o) =>
             new(
                 o.Viaje.Id,
@@ -302,6 +242,5 @@ namespace DePaso.Logica.servicios
                 e.FechaLimite
             );
 
-        private sealed record Ocurrencia(Viajes Viaje, DateOnly Fecha);
     }
 }

@@ -10,6 +10,7 @@ public static class ViajesConfiguracion
     public static IServiceCollection AgregarModuloViajes(this IServiceCollection servicio, IConfiguration configuracion)
     {
         servicio.TryAddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
+        servicio.TryAddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
 
         var usarMock = configuracion.GetValue<bool>("Rutas:UsarMock")
             || string.IsNullOrWhiteSpace(configuracion["Geoapify:ApiKey"]);
@@ -28,6 +29,9 @@ public static class ViajesConfiguracion
         }
 
         servicio.AddScoped<IViajeServicio, ViajeServicio>();
+        servicio.AddScoped<IServicioCoincidencias, CoincidenciasServicio>();
+        servicio.AddScoped<IOportunidadesServicio, OportunidadesServicio>();
+        servicio.AddScoped<ITransportesServicio, TransportesServicio>();
         return servicio;
     }
 }

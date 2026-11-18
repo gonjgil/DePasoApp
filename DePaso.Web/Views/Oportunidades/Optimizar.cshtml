@@ -1,0 +1,154 @@
+@model DePaso.Logica.dtos.OptimizacionCoincidenciasDto
+@using System.Globalization
+@using DePaso.Logica.enums
+@{
+    ViewData["Title"] = "Oportunidades";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    var viajeId = (int)ViewData["ViajeId"]!;
+    var fecha = (DateOnly)ViewData["Fecha"]!;
+    var fechaTexto = fecha.ToString("yyyy-MM-dd");
+    var recomendada = Model.Recomendada;
+    var recomendados = Model.Opciones.Where(o => o.Estado == EstadoOpcionCoincidencia.Recomendado).ToList();
+    var entran = Model.Opciones.Where(o => o.Estado == EstadoOpcionCoincidencia.Alternativo).ToList();
+    var noEntran = Model.Opciones.Where(o => o.Estado == EstadoOpcionCoincidencia.NoEntra).ToList();
+    var urlResumen = Url.Action("Resumen", "Oportunidades", new { viajeId, fecha = fechaTexto }) + string.Concat(recomendada.EnvioIds.Select(id => "&envioIds=" + id));
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header page-header-split">
+    <div>
+        <h1 class="page-title">Optimizar combinación</h1>
+        <p class="page-subtitle">Mayor pago que no supera los topes del viaje. Ante empate de pago, gana el de menor desvío. @fecha.ToString("dddd dd/MM", es)</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-controller="Oportunidades" asp-action="Lista" asp-route-viajeId="@viajeId" asp-route-fecha="@fechaTexto">
+        Volver a la lista
+    </a>
+</header>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+@if (Model.TopeAlcanzado)
+{
+    <div class="alert alert-info" role="note">
+        Hay más de @Model.TopeCandidatos envíos con pago. La combinación evalúa sólo los @Model.TopeCandidatos de mayor pago.
+    </div>
+}
+
+<section class="surface dp-panel mb-3" aria-labelledby="recomendada">
+    <h2 id="recomendada" class="section-heading">Combinación recomendada</h2>
+    @if (recomendada.Paquetes == 0)
+    {
+        <p class="dp-empty">Ningún envío entra en esta salida.</p>
+    }
+    else
+    {
+        <div class="dp-item-meta mb-3">
+            @recomendada.Paquetes envíos &middot; @recomendada.KilosKg.ToString("0.##", es) kg &middot;
+            desvío @recomendada.DesvioKm.ToString("0.##", es) km &middot; pago @Moneda(recomendada.Pago)
+        </div>
+        <a class="btn btn-primary @(recomendada.Paquetes == 0 ? "disabled" : "")" href="@urlResumen">Confirmar combinación</a>
+    }
+</section>
+
+@if (recomendados.Count > 0)
+{
+    <section class="surface dp-panel mb-3" aria-labelledby="elegidos">
+        <h2 id="elegidos" class="section-heading">Elegidos</h2>
+        <ul class="dp-list">
+            @foreach (var o in recomendados)
+            {
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">@o.Origen &rarr; @o.Destino</div>
+                        <div class="dp-item-meta">@o.KilosKg.ToString("0.##", es) kg &middot; desvío @o.DesvioKm.ToString("0.##", es) km &middot; pago @Moneda(o.Pago)</div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="badge dp-badge dp-badge-activo">@o.EstadoTexto</span>
+                        <form method="post" asp-controller="Oportunidades" asp-action="Aceptar">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="viajeId" value="@viajeId" />
+                            <input type="hidden" name="fecha" value="@fechaTexto" />
+                            <input type="hidden" name="envioId" value="@o.EnvioId" />
+                            <input type="hidden" name="volverA" value="optimizar" />
+                            <button type="submit" class="btn btn-sm btn-primary">Aceptar</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    </section>
+}
+
+<section class="surface dp-panel mb-3" aria-labelledby="otros-entran">
+    <h2 id="otros-entran" class="section-heading">Otros que entran</h2>
+    @if (entran.Count == 0)
+    {
+        <p class="dp-empty">No hay otros envíos que entren además de la combinación recomendada.</p>
+    }
+    else
+    {
+        <ul class="dp-list">
+            @foreach (var o in entran)
+            {
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">@o.Origen &rarr; @o.Destino</div>
+                        <div class="dp-item-meta">@o.KilosKg.ToString("0.##", es) kg &middot; desvío @o.DesvioKm.ToString("0.##", es) km &middot; pago @Moneda(o.Pago)</div>
+                        @foreach (var motivo in o.Motivos)
+                        {
+                            <div class="dp-item-meta">@motivo</div>
+                        }
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="badge dp-badge dp-badge-asignado">@o.EstadoTexto</span>
+                        <form method="post" asp-controller="Oportunidades" asp-action="Aceptar">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="viajeId" value="@viajeId" />
+                            <input type="hidden" name="fecha" value="@fechaTexto" />
+                            <input type="hidden" name="envioId" value="@o.EnvioId" />
+                            <input type="hidden" name="volverA" value="optimizar" />
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Aceptar</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</section>
+
+<section class="surface dp-panel mb-3" aria-labelledby="no-entran">
+    <h2 id="no-entran" class="section-heading">No entran</h2>
+    @if (noEntran.Count == 0)
+    {
+        <p class="dp-empty">Todos los envíos evaluados entran en alguna combinación.</p>
+    }
+    else
+    {
+        <ul class="dp-list">
+            @foreach (var o in noEntran)
+            {
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">@o.Origen &rarr; @o.Destino</div>
+                        <div class="dp-item-meta">@o.KilosKg.ToString("0.##", es) kg &middot; desvío @o.DesvioKm.ToString("0.##", es) km &middot; pago @Moneda(o.Pago)</div>
+                        @foreach (var motivo in o.Motivos)
+                        {
+                            <div class="dp-item-meta">@motivo</div>
+                        }
+                    </div>
+                    <span class="badge dp-badge dp-badge-cancelado">@o.EstadoTexto</span>
+                </li>
+            }
+        </ul>
+    }
+</section>

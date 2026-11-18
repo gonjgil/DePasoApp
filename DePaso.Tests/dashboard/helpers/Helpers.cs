@@ -1,6 +1,7 @@
 ﻿using DePaso.Entidades;
 using DePaso.Logica.enums;
 using DePaso.Logica.helpers;
+using DePaso.Logica.servicios;
 using Microsoft.EntityFrameworkCore;
 
 namespace DePaso.Tests.dashboard.helpers
@@ -60,6 +61,16 @@ namespace DePaso.Tests.dashboard.helpers
         }
     }
 
+    /// <summary>Servicio de rutas de prueba: distancia = cantidad de puntos (km), duración = 10 min por punto.</summary>
+    internal sealed class RutasFijas : IServicioRutas
+    {
+        public Task<Coordenada?> GeocodificarAsync(DePaso.Logica.dtos.DireccionDatos direccion, CancellationToken ct = default) =>
+            Task.FromResult<Coordenada?>(null);
+
+        public Task<RutaCalculada> CalcularRutaAsync(IReadOnlyList<Coordenada> puntos, CancellationToken ct = default) =>
+            Task.FromResult(new RutaCalculada(puntos.Count, puntos.Count * 10, true));
+    }
+
     internal static class Sembrar
     {
         public static readonly DateOnly Hoy = new(2026, 10, 27);
@@ -81,40 +92,55 @@ namespace DePaso.Tests.dashboard.helpers
             return u;
         }
 
-        // TODO: rearmar test
-        // public static Viajes Viaje(
-        //     DePasoAppContext ctx, int id, int usuarioId, byte[] dias,
-        //     int salidaHora = 8, int maxPaquetes = 3, decimal pesoMax = 10, decimal desvioMax = 5,
-        //     bool? activo = true, string origen = "Belgrano", string destino = "Lomas de Zamora")
-        // {
-        //     var v = new Viajes
-        //     {
-        //         Id = id,
-        //         UsuarioId = usuarioId,
-        //         OrigenCalle = origen,
-        //         OrigenLat = -34.50m,
-        //         OrigenLng = -58.40m,
-        //         DestinoDir = destino,
-        //         DestinoLat = -34.70m,
-        //         DestinoLng = -58.40m,
-        //         HoraSalida = new TimeOnly(salidaHora, 0),
-        //         HoraLlegada = new TimeOnly(salidaHora, 55),
-        //         MaxPaquetes = maxPaquetes,
-        //         PesoMaxKg = pesoMax,
-        //         DesvioMaxKm = desvioMax,
-        //         DistanciaKm = 22,
-        //         DuracionMin = 55,
-        //         Activo = activo
-        //     };
-        //     foreach (var d in dias)
-        //     {
-        //         v.ViajeDia.Add(new ViajeDia { ViajeId = id, DiaSemana = d });
-        //     }
+        /// <param name="dias">DiaSemana: 1=Lunes ... 7=Domingo.</param>
+        public static Viajes Viaje(
+            DePasoAppContext ctx,
+            int id,
+            int usuarioId,
+            byte[] dias,
+            int salidaHora = 8,
+            int maxPaquetes = 3,
+            decimal pesoMax = 10,
+            decimal desvioMax = 5,
+            bool? activo = true,
+            string origen = "Belgrano",
+            string destino = "Lomas de Zamora"
+        )
+        {
+            var v = new Viajes
+            {
+                Id = id,
+                UsuarioId = usuarioId,
+                OrigenCalle = origen,
+                OrigenAltura = 100,
+                OrigenLocalidad = "CABA",
+                OrigenProvincia = "Buenos Aires",
+                OrigenLat = -34.50m,
+                OrigenLng = -58.40m,
+                DestinoCalle = destino,
+                DestinoAltura = 200,
+                DestinoLocalidad = "Lomas de Zamora",
+                DestinoProvincia = "Buenos Aires",
+                DestinoLat = -34.70m,
+                DestinoLng = -58.40m,
+                HoraSalida = new TimeOnly(salidaHora, 0),
+                HoraLlegada = new TimeOnly(salidaHora, 55),
+                MaxPaquetes = maxPaquetes,
+                PesoMaxKg = pesoMax,
+                DesvioMaxKm = desvioMax,
+                DistanciaKm = 22,
+                DuracionMin = 55,
+                Activo = activo,
+            };
+            foreach (var d in dias)
+            {
+                v.ViajeDia.Add(new ViajeDia { ViajeId = id, DiaSemana = d });
+            }
 
-        //     ctx.Viajes.Add(v);
-        //     ctx.SaveChanges();
-        //     return v;
-        // }
+            ctx.Viajes.Add(v);
+            ctx.SaveChanges();
+            return v;
+        }
 
         public static Paradas Parada(
             DePasoAppContext ctx,
@@ -140,43 +166,48 @@ namespace DePaso.Tests.dashboard.helpers
         }
 
         /// <param name="desvioKm">Con <see cref="EstimadorFijo"/> el desvío sale de OrigenLat.</param>
-        // TODO: rearmar test
-        // public static Envios Envio(
-        //     DePasoAppContext ctx,
-        //     int id,
-        //     int usuarioId,
-        //     decimal monto,
-        //     decimal pesoKg = 1,
-        //     decimal desvioKm = 0,
-        //     EstadoEnvio estado = EstadoEnvio.BuscandoConductor,
-        //     DateOnly? fechaLimite = null,
-        //     string origen = "Palermo",
-        //     string destino = "Avellaneda",
-        //     string descripcion = "Paquete"
-        // )
-        // {
-        //     var e = new Envios
-        //     {
-        //         Id = id,
-        //         UsuarioId = usuarioId,
-        //         OrigenDir = origen,
-        //         OrigenLat = desvioKm,
-        //         OrigenLng = -58.40m,
-        //         DestinoDir = destino,
-        //         DestinoLat = -34.60m,
-        //         DestinoLng = -58.40m,
-        //         FechaLimite = fechaLimite ?? FechaLejana,
-        //         PesoKg = pesoKg,
-        //         Tamanio = 1,
-        //         Descripcion = descripcion,
-        //         Monto = monto,
-        //         Estado = (byte)estado,
-        //         CreadoEn = DateTime.Now,
-        //     };
-        //     ctx.Envios.Add(e);
-        //     ctx.SaveChanges();
-        //     return e;
-        // }
+        public static Envios Envio(
+            DePasoAppContext ctx,
+            int id,
+            int usuarioId,
+            decimal monto,
+            decimal pesoKg = 1,
+            decimal desvioKm = 0,
+            EstadoEnvio estado = EstadoEnvio.BuscandoConductor,
+            DateOnly? fechaLimite = null,
+            string origen = "Palermo",
+            string destino = "Avellaneda",
+            string descripcion = "Paquete"
+        )
+        {
+            var e = new Envios
+            {
+                Id = id,
+                UsuarioId = usuarioId,
+                OrigenCalle = origen,
+                OrigenAltura = 100,
+                OrigenLocalidad = "CABA",
+                OrigenProvincia = "Buenos Aires",
+                OrigenLat = desvioKm,
+                OrigenLng = -58.40m,
+                DestinoCalle = destino,
+                DestinoAltura = 300,
+                DestinoLocalidad = "Avellaneda",
+                DestinoProvincia = "Buenos Aires",
+                DestinoLat = -34.60m,
+                DestinoLng = -58.40m,
+                FechaLimite = fechaLimite ?? FechaLejana,
+                PesoKg = pesoKg,
+                Tamanio = 1,
+                Descripcion = descripcion,
+                Monto = monto,
+                Estado = (byte)estado,
+                CreadoEn = DateTime.Now,
+            };
+            ctx.Envios.Add(e);
+            ctx.SaveChanges();
+            return e;
+        }
 
         public static Asignaciones Asignar(
             DePasoAppContext ctx,
