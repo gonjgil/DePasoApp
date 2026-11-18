@@ -15,6 +15,11 @@
     <p class="page-subtitle">Operaciones anteriores.</p>
 </header>
 
+@if (ViewData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
 <section class="dashboard-summary" aria-labelledby="historial-resumen">
     <h2 id="historial-resumen" class="visually-hidden">Resumen</h2>
     <div class="row row-cols-1 row-cols-md-3 g-3">

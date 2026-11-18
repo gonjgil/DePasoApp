@@ -1,4 +1,5 @@
-using DePaso.Logica.servicios;
+using DePaso.Logica.Dtos;
+using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -10,9 +11,11 @@ namespace DePaso.Web.Controllers;
 [Authorize]
 public class HistorialController : Controller
 {
-    private readonly IHistorialServicio _historial;
+    private const string MensajeSinApi = "No se pudo conectar con la API. Verifica que DePaso.Api este corriendo.";
 
-    public HistorialController(IHistorialServicio historial)
+    private readonly HistorialApiClient _historial;
+
+    public HistorialController(HistorialApiClient historial)
     {
         _historial = historial;
     }
@@ -26,13 +29,21 @@ public class HistorialController : Controller
             return await CerrarSesionYVolverAIngresar();
         }
 
-        var historial = await _historial.ObtenerAsync(usuarioId, cancelacion);
-        if (historial is null)
+        try
         {
-            return await CerrarSesionYVolverAIngresar();
-        }
+            var historial = await _historial.ObtenerAsync(usuarioId, cancelacion);
+            if (historial is null)
+            {
+                return await CerrarSesionYVolverAIngresar();
+            }
 
-        return View(historial);
+            return View(historial);
+        }
+        catch (HttpRequestException)
+        {
+            ViewData["Error"] = MensajeSinApi;
+            return View(new HistorialDto(0, 0, 0m, []));
+        }
     }
 
     private async Task<IActionResult> CerrarSesionYVolverAIngresar()
