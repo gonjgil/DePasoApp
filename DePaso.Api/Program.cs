@@ -2,6 +2,7 @@ using DePaso.Api.Config;
 using DePaso.Api.Services;
 using DePaso.Entidades;
 using DePaso.Logica;
+using DePaso.Logica.servicios;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<DePasoAppContext>(options =>
 
 builder.Services.AddScoped<UsuarioServicio>();
 builder.Services.AddScoped<EnvioServicio>();
+builder.Services.AddScoped<IHistorialServicio, HistorialServicio>();
 
 builder.Services.AddControllers();
 

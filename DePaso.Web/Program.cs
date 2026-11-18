@@ -48,10 +48,17 @@ builder.Services.AddHttpClient<TransportesApiClient>(client =>
     );
 });
 
+builder.Services.AddHttpClient<HistorialApiClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiUrl"]
+            ?? throw new InvalidOperationException("No se configuró ApiUrl.")
+    );
+});
+
 builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
 builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
 builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
-builder.Services.AddScoped<IHistorialServicio, HistorialServicio>();
 
 builder.Services.AddDbContext<DePasoAppContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
