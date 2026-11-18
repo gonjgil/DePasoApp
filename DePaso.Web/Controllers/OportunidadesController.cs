@@ -23,8 +23,8 @@ public class OportunidadesController : Controller
         _oportunidades = oportunidades;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index()
+    [HttpGet("/Oportunidades")]
+    public async Task<IActionResult> Oportunidades()
     {
         if (!TryObtenerUsuarioId(out var usuarioId))
         {
@@ -58,13 +58,13 @@ public class OportunidadesController : Controller
         catch (HttpRequestException)
         {
             TempData["Error"] = MensajeSinApi;
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Oportunidades));
         }
 
         if (lista is null)
         {
             TempData["Error"] = "No encontramos esa salida.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Oportunidades));
         }
 
         orden = NormalizarOrden(orden);
@@ -118,13 +118,13 @@ public class OportunidadesController : Controller
         catch (HttpRequestException)
         {
             TempData["Error"] = MensajeSinApi;
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Oportunidades));
         }
 
         if (optimizacion is null)
         {
             TempData["Error"] = "No encontramos esa salida.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Oportunidades));
         }
 
         ViewData["ViajeId"] = viajeId;
@@ -154,13 +154,13 @@ public class OportunidadesController : Controller
         catch (HttpRequestException)
         {
             TempData["Error"] = MensajeSinApi;
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Oportunidades));
         }
 
         if (lista is null)
         {
             TempData["Error"] = "No encontramos esa salida.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Oportunidades));
         }
 
         var items = lista.Coincidencias.Where(c => envioIds.Contains(c.EnvioId)).ToList();
