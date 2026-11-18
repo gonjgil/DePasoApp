@@ -1,0 +1,79 @@
+@model DePaso.Web.Models.ResumenCoincidenciasViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Oportunidades";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    var fechaTexto = Model.Fecha.ToString("yyyy-MM-dd");
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header page-header-split">
+    <div>
+        <h1 class="page-title">Resumen de la combinación</h1>
+        <p class="page-subtitle">@Model.Viaje &middot; @Model.Fecha.ToString("dddd dd/MM", es)</p>
+    </div>
+    <a class="btn btn-outline-secondary" asp-action="Optimizar" asp-route-viajeId="@Model.ViajeId" asp-route-fecha="@fechaTexto">
+        Volver a la combinación
+    </a>
+</header>
+
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (Model.NoDisponibles.Count > 0)
+{
+    <div class="alert alert-warning" role="alert">
+        Otro conductor ya tomó algunos envíos de esta combinación. Recalculá la combinación antes de reservar.
+        <a class="alert-link" asp-action="Optimizar" asp-route-viajeId="@Model.ViajeId" asp-route-fecha="@fechaTexto">Recalcular</a>
+    </div>
+}
+
+@if (Model.Items.Count == 0)
+{
+    <section class="surface shipments-empty">
+        <h2 class="section-heading">No quedan envíos para reservar</h2>
+        <a class="btn btn-outline-primary" asp-action="Lista" asp-route-viajeId="@Model.ViajeId" asp-route-fecha="@fechaTexto">Volver a los envíos compatibles</a>
+    </section>
+}
+else
+{
+    <section class="surface dp-panel mb-3">
+        <ul class="dp-list">
+            @foreach (var c in Model.Items)
+            {
+                <li class="dp-list-item">
+                    <div class="dp-item-copy">
+                        <div class="dp-item-title">@c.Origen &rarr; @c.Destino</div>
+                        <div class="dp-item-meta">@c.KilosKg.ToString("0.##", es) kg &middot; desvío @c.DesvioKm.ToString("0.##", es) km</div>
+                    </div>
+                    <span>@Moneda(c.Pago)</span>
+                </li>
+            }
+        </ul>
+    </section>
+
+    <section class="surface dp-panel mb-3" aria-label="Totales">
+        <div class="dp-item-meta">
+            Pago total <strong>@Moneda(Model.Pago)</strong> &middot;
+            <strong>@Model.KilosKg.ToString("0.##", es) kg</strong> &middot;
+            desvío total <strong>@Model.DesvioKm.ToString("0.##", es) km</strong>
+        </div>
+    </section>
+
+    <form method="post" asp-action="ConfirmarReserva">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="viajeId" value="@Model.ViajeId" />
+        <input type="hidden" name="fecha" value="@fechaTexto" />
+        @foreach (var c in Model.Items)
+        {
+            <input type="hidden" name="envioIds" value="@c.EnvioId" />
+        }
+        <button type="submit" class="btn btn-primary">Confirmar y reservar</button>
+    </form>
+}

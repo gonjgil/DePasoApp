@@ -119,6 +119,31 @@
 .dp-item-meta { margin-top: .15rem; color: var(--dp-muted); font-size: .8rem; }
 .dp-panel-link { margin-top: .55rem; padding-inline: 0; }
 
+/* Filas de Oportunidades y Mis transportes: columnas fijas para que estado y botones queden alineados. */
+.dp-fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 9.5rem 9.5rem 9.5rem;
+    align-items: center;
+    gap: .5rem .75rem;
+    padding-block: .8rem;
+}
+.dp-fila + .dp-fila { border-top: 1px solid var(--dp-border); }
+.dp-fila:first-child { padding-top: .15rem; }
+.dp-fila-celda { min-width: 0; display: flex; justify-content: center; }
+.dp-fila-celda .dp-badge { min-width: 8.5rem; text-align: center; white-space: nowrap; }
+.dp-fila-celda form,
+.dp-fila-celda .btn { width: 100%; }
+.dp-fila-celda .btn { white-space: nowrap; }
+.dp-fila-ancha { grid-column: 2 / span 3; justify-self: end; width: auto; }
+.dp-fila-ancha .btn { width: auto; }
+
+@media (max-width: 767.98px) {
+    .dp-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .dp-fila-copy { grid-column: 1 / -1; }
+    .dp-fila-ancha { grid-column: 1 / -1; justify-self: stretch; }
+    .dp-fila-ancha .btn { width: 100%; }
+}
+
 @media (max-width: 767.98px) {
     .dashboard-hero { grid-template-columns: minmax(0, 1fr); }
     .dashboard-route { display: none; }

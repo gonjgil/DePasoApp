@@ -1,0 +1,59 @@
+@model List<DePaso.Logica.dtos.OportunidadSalidaDto>
+@using System.Globalization
+@{
+    ViewData["Title"] = "Oportunidades";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Oportunidades</h1>
+        <p class="page-subtitle">Próximas salidas de tus viajes activos y los envíos que les sirven.</p>
+    </div>
+</header>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if ((TempData["Error"] ?? ViewData["Error"]) is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+@if (Model.Count == 0)
+{
+    <section class="surface shipments-empty">
+        <span class="icon-tile"><span class="dp-icon icon-trend" aria-hidden="true"></span></span>
+        <h2 class="section-heading">No hay salidas en los próximos 14 días</h2>
+        <p>Registrá un viaje activo para ver los envíos que le sirven.</p>
+        <a asp-controller="Viajes" asp-action="Nuevo" class="btn btn-outline-primary">Nuevo viaje</a>
+    </section>
+}
+else
+{
+    <section class="surface dp-panel">
+        @foreach (var salida in Model)
+        {
+            var fechaTexto = salida.Fecha.ToString("yyyy-MM-dd");
+            <div class="dp-fila">
+                <div class="dp-item-copy dp-fila-copy">
+                    <div class="dp-item-title">@salida.Origen &rarr; @salida.Destino</div>
+                    <div class="dp-item-meta">
+                        @salida.Fecha.ToString("dddd dd/MM", es) &middot; sale @salida.HoraSalida.ToString("HH:mm")
+                    </div>
+                </div>
+                <div class="dp-fila-ancha">
+                    <a class="btn btn-sm @(salida.Coincidencias > 0 ? "btn-primary" : "btn-outline-secondary")"
+                       asp-action="Lista" asp-route-viajeId="@salida.ViajeId" asp-route-fecha="@fechaTexto">
+                        @(salida.Coincidencias == 1 ? "1 envío compatible" : $"{salida.Coincidencias} envíos compatibles")
+                    </a>
+                </div>
+            </div>
+        }
+    </section>
+}

@@ -1,0 +1,88 @@
+@model DePaso.Logica.dtos.DetalleCoincidenciaDto
+@using System.Globalization
+@{
+    ViewData["Title"] = "Oportunidades";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    var viajeId = (int)ViewData["ViajeId"]!;
+    var fecha = (DateOnly)ViewData["Fecha"]!;
+    var fechaTexto = fecha.ToString("yyyy-MM-dd");
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header">
+    <div>
+        <h1 class="page-title">Detalle del envío</h1>
+        <p class="page-subtitle">@Model.Origen &rarr; @Model.Destino</p>
+    </div>
+</header>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <section class="surface dp-panel h-100" aria-labelledby="ruta-habitual">
+            <h2 id="ruta-habitual" class="section-heading">Ruta habitual</h2>
+            <div class="dp-item-meta">@Model.RutaHabitual.Km.ToString("0.##", es) km &middot; @Model.RutaHabitual.Minutos min</div>
+        </section>
+    </div>
+    <div class="col-md-6">
+        <section class="surface dp-panel h-100" aria-labelledby="ruta-con-envio">
+            <h2 id="ruta-con-envio" class="section-heading">Con este envío</h2>
+            <div class="dp-item-meta">@Model.RutaConEnvio.Km.ToString("0.##", es) km &middot; @Model.RutaConEnvio.Minutos min</div>
+        </section>
+    </div>
+</div>
+
+<section class="surface dp-panel mb-3">
+    <ul class="dp-list">
+        <li class="dp-list-item">
+            <div class="dp-item-copy"><div class="dp-item-title">Desvío</div></div>
+            <span>@Model.DesvioKm.ToString("0.##", es) km</span>
+        </li>
+        <li class="dp-list-item">
+            <div class="dp-item-copy"><div class="dp-item-title">Kilos</div></div>
+            <span>@Model.KilosKg.ToString("0.##", es) kg</span>
+        </li>
+        <li class="dp-list-item">
+            <div class="dp-item-copy"><div class="dp-item-title">Pago</div></div>
+            <span>@Moneda(Model.Pago)</span>
+        </li>
+        <li class="dp-list-item">
+            <div class="dp-item-copy">
+                <div class="dp-item-title">Capacidad que queda</div>
+                <div class="dp-item-meta">Después de aceptarlo, en esta salida</div>
+            </div>
+            <span>@Model.CapacidadQueda.Paquetes paquetes &middot; @Model.CapacidadQueda.PesoKg.ToString("0.##", es) kg &middot; @Model.CapacidadQueda.DesvioKm.ToString("0.##", es) km</span>
+        </li>
+    </ul>
+</section>
+
+@if (Model.PuedeAceptarse)
+{
+    <form method="post" asp-action="Aceptar">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="viajeId" value="@viajeId" />
+        <input type="hidden" name="fecha" value="@fechaTexto" />
+        <input type="hidden" name="envioId" value="@Model.EnvioId" />
+        <input type="hidden" name="volverA" value="detalle" />
+        <button type="submit" class="btn btn-primary">Aceptar envío</button>
+    </form>
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        <strong>No se puede aceptar: supera tus límites.</strong>
+        <ul class="mb-0 mt-2">
+            @foreach (var motivo in Model.Motivos)
+            {
+                <li>@motivo</li>
+            }
+        </ul>
+    </div>
+}
+
+<a class="btn btn-link mt-3" asp-action="Lista" asp-route-viajeId="@viajeId" asp-route-fecha="@fechaTexto">
+    <span class="dp-icon icon-arrow" aria-hidden="true"></span> Volver a los envíos compatibles
+</a>

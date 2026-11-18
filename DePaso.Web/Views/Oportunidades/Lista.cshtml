@@ -1,0 +1,101 @@
+@model DePaso.Logica.dtos.ListaCoincidenciasDto
+@using System.Globalization
+@using DePaso.Logica.enums
+@{
+    ViewData["Title"] = "Oportunidades";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+    var orden = ViewData["Orden"] as string ?? "ganancia";
+    var fechaTexto = Model.Fecha.ToString("yyyy-MM-dd");
+    var ordenes = new (string Valor, string Texto)[] { ("ganancia", "Ganancia"), ("desvio", "Desvío"), ("compatibilidad", "Compatibilidad") };
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+    string ClaseNivel(NivelCoincidencia nivel) => nivel switch
+    {
+        NivelCoincidencia.MuyCompatible => "dp-badge-activo",
+        NivelCoincidencia.Compatible => "dp-badge-asignado",
+        _ => "dp-badge-buscando",
+    };
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<header class="page-header page-header-split">
+    <div>
+        <h1 class="page-title">Envíos compatibles</h1>
+        <p class="page-subtitle">@Model.Viaje &middot; @Model.Fecha.ToString("dddd dd/MM", es)</p>
+    </div>
+    <a class="btn btn-primary" asp-action="Optimizar" asp-route-viajeId="@Model.ViajeId" asp-route-fecha="@fechaTexto">
+        <span class="dp-icon icon-route" aria-hidden="true"></span> Optimizar combinación
+    </a>
+</header>
+
+@if (TempData["Mensaje"] is string mensaje)
+{
+    <div class="alert alert-success" role="status">@mensaje</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}
+
+<section class="surface dp-panel mb-3" aria-label="Capacidad que queda">
+    <div class="dp-item-meta">
+        Te quedan <strong>@Model.Capacidad.Paquetes</strong> paquetes,
+        <strong>@Model.Capacidad.PesoKg.ToString("0.##", es) kg</strong> y
+        <strong>@Model.Capacidad.DesvioKm.ToString("0.##", es) km</strong> de desvío en esta salida.
+    </div>
+</section>
+
+<nav class="viajes-filtros mb-3" aria-label="Ordenar por">
+    <div class="btn-group" role="group">
+        @foreach (var o in ordenes)
+        {
+            var activo = o.Valor == orden;
+            <a asp-action="Lista" asp-route-viajeId="@Model.ViajeId" asp-route-fecha="@fechaTexto" asp-route-orden="@o.Valor"
+               class="btn btn-sm @(activo ? "btn-primary" : "btn-outline-primary")"
+               aria-current="@(activo ? "page" : null)">@o.Texto</a>
+        }
+    </div>
+</nav>
+
+@if (Model.Coincidencias.Count == 0)
+{
+    <section class="surface shipments-empty">
+        <span class="icon-tile"><span class="dp-icon icon-package" aria-hidden="true"></span></span>
+        <h2 class="section-heading">No hay envíos que entren en esta salida</h2>
+        <p>Probá otra salida o revisá tus límites de peso y desvío.</p>
+    </section>
+}
+else
+{
+    <section class="surface dp-panel">
+        @foreach (var c in Model.Coincidencias)
+        {
+            <div class="dp-fila">
+                <div class="dp-item-copy dp-fila-copy">
+                    <div class="dp-item-title">@c.Origen &rarr; @c.Destino</div>
+                    <div class="dp-item-meta">
+                        @c.KilosKg.ToString("0.##", es) kg &middot; desvío @c.DesvioKm.ToString("0.##", es) km &middot; pago @Moneda(c.Pago)
+                    </div>
+                </div>
+                <div class="dp-fila-celda">
+                    <span class="badge dp-badge @ClaseNivel(c.Nivel)">@c.NivelTexto</span>
+                </div>
+                <div class="dp-fila-celda">
+                    <a class="btn btn-sm btn-outline-secondary"
+                       asp-action="Detalle" asp-route-viajeId="@Model.ViajeId" asp-route-envioId="@c.EnvioId" asp-route-fecha="@fechaTexto">Ver detalle</a>
+                </div>
+                <div class="dp-fila-celda">
+                    <form method="post" asp-action="Aceptar">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="viajeId" value="@Model.ViajeId" />
+                        <input type="hidden" name="fecha" value="@fechaTexto" />
+                        <input type="hidden" name="envioId" value="@c.EnvioId" />
+                        <button type="submit" class="btn btn-sm btn-primary">Aceptar</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </section>
+}
