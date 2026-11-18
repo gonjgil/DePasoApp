@@ -64,16 +64,25 @@ else
                         <td role="cell" class="shipment-meta"><span class="shipment-mobile-label" aria-hidden="true">Monto</span>$@envio.Monto</td>
                         <td role="cell" class="shipment-status"><span class="shipment-mobile-label" aria-hidden="true">Estado</span><span class="badge dp-badge @claseEstado">@EstadosEnvio.Texto(envio.Estado)</span></td>
                         <td role="cell" class="shipment-action-cell">
-                            <div class="shipment-actions">
-                                <a asp-action="Editar" asp-route-id="@envio.Id"
-                                   class="btn btn-sm btn-outline-primary">Editar</a>
-                                <form asp-action="Borrar" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@envio.Id" />
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('¿Seguro que querés borrar este envío?');">Borrar</button>
-                                </form>
-                            </div>
+                            @if ((EstadoEnvio)envio.Estado == EstadoEnvio.BuscandoConductor)
+                            {
+                                <div class="shipment-actions">
+                                    <a asp-action="Editar" asp-route-id="@envio.Id"
+                                       class="btn btn-sm btn-outline-primary">Editar</a>
+                                    <form asp-action="Borrar" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@envio.Id" />
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('¿Seguro que querés cancelar este envío?');">
+                                            Cancelar
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sin acciones</span>
+                            }
                         </td>
                     </tr>
                 }
