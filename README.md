@@ -9,21 +9,17 @@ Aplicación web de viajes compartidos y envíos. La solución tiene cinco proyec
 
 ## Base de datos
 
-La cadena de conexión no va en el repositorio. Se guarda en los secretos de usuario de cada proyecto que abre la base, con la clave `ConnectionStrings:Conexion`.
-
-En la API:
+La cadena de conexión no va en el repositorio. La guarda la API, en los secretos de usuario, con la clave `ConnectionStrings:Conexion`. La web no abre la base.
 
 ```
 dotnet user-secrets set "ConnectionStrings:Conexion" "Server=localhost\SQLEXPRESS;Database=DePasoApp;Trusted_Connection=True;TrustServerCertificate=True" --project DePaso.Api
 ```
 
-La web también abre la base para el inicio y el potencial mensual. La misma clave va en `DePaso.Web`.
-
 Para crear las tablas:
 
 ```
 dotnet tool install --global dotnet-ef
-dotnet ef database update --project DePaso.Entidades --startup-project DePaso.Web
+dotnet ef database update --project DePaso.Entidades --startup-project DePaso.Api
 ```
 
 ## Datos iniciales
