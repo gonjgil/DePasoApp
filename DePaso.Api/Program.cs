@@ -1,3 +1,4 @@
+using System.Reflection;
 using DePaso.Api;
 using DePaso.Api.Config;
 using DePaso.Api.Services;
@@ -55,8 +56,9 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-using (var alcance = app.Services.CreateScope())
+if (Assembly.GetEntryAssembly()?.GetName().Name != "ef")
 {
+    using var alcance = app.Services.CreateScope();
     var db = alcance.ServiceProvider.GetRequiredService<DePasoAppContext>();
     var usuarios = alcance.ServiceProvider.GetRequiredService<UsuarioServicio>();
     await DatosIniciales.CargarSiEstaVaciaAsync(db, usuarios);
