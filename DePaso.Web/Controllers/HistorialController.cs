@@ -17,8 +17,8 @@ public class HistorialController : Controller
         _historial = historial;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancelacion)
+    [HttpGet("/Historial")]
+    public async Task<IActionResult> Historial(CancellationToken cancelacion)
     {
         var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!int.TryParse(claim, out var usuarioId))

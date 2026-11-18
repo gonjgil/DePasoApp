@@ -13,7 +13,7 @@ public class HomeController : Controller
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToAction("Index", "Dashboard");
+            return RedirectToAction("Dashboard", "Dashboard");
         }
 
         return RedirectToAction("Ingresar", "Cuenta");

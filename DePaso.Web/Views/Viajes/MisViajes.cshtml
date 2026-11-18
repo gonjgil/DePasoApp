@@ -35,7 +35,7 @@
         @foreach (var filtro in filtros)
         {
             var activo = filtro.Valor == estado;
-            <a asp-action="Index" asp-route-estado="@filtro.Valor"
+            <a asp-action="MisViajes" asp-route-estado="@filtro.Valor"
                class="btn btn-sm @(activo ? "btn-primary" : "btn-outline-primary")"
                aria-current="@(activo ? "page" : null)">@filtro.Texto</a>
         }

@@ -19,8 +19,8 @@ public class TransportesController : Controller
         _transportes = transportes;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index()
+    [HttpGet("/Transportes")]
+    public async Task<IActionResult> MisTransportes()
     {
         if (!TryObtenerUsuarioId(out var usuarioId))
         {
@@ -57,7 +57,7 @@ public class TransportesController : Controller
             TempData["Error"] = MensajeSinApi;
         }
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(MisTransportes));
     }
 
     [HttpPost]
@@ -79,7 +79,7 @@ public class TransportesController : Controller
             TempData["Error"] = MensajeSinApi;
         }
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(MisTransportes));
     }
 
     private bool TryObtenerUsuarioId(out int usuarioId) =>

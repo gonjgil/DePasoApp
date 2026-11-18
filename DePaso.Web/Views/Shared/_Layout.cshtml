@@ -70,7 +70,7 @@
                                     </li>
                                     <li>
                                         <a class="nav-link @(enviosActivo && accion != "Nuevo" ? "active" : "")"
-                                           asp-controller="Envios" asp-action="Index">Mis envíos</a>
+                                           asp-controller="Envios" asp-action="MisEnvios">Mis envíos</a>
                                     </li>
                                 </ul>
                             </div>
@@ -91,26 +91,26 @@
                                     </li>
                                     <li>
                                         <a class="nav-link @(viajesActivo && accion != "Nuevo" ? "active" : "")"
-                                           asp-controller="Viajes" asp-action="Index">Mis viajes</a>
+                                           asp-controller="Viajes" asp-action="MisViajes">Mis viajes</a>
                                     </li>
                                 </ul>
                             </div>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(oportunidadesActivo ? "active" : "")" aria-current="@(oportunidadesActivo ? "page" : null)"
-                               asp-controller="Oportunidades" asp-action="Index">
+                               asp-controller="Oportunidades" asp-action="Oportunidades">
                                 <span class="dp-icon icon-trend" aria-hidden="true"></span> Oportunidades
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(transportesActivo ? "active" : "")" aria-current="@(transportesActivo ? "page" : null)"
-                               asp-controller="Transportes" asp-action="Index">
+                               asp-controller="Transportes" asp-action="MisTransportes">
                                 <span class="dp-icon icon-route" aria-hidden="true"></span> Mis transportes
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link @(historialActivo ? "active" : "")" aria-current="@(historialActivo ? "page" : null)"
-                               asp-controller="Historial" asp-action="Index">
+                               asp-controller="Historial" asp-action="Historial">
                                 <span class="dp-icon icon-calendar" aria-hidden="true"></span> Historial
                             </a>
                         </li>

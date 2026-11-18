@@ -17,8 +17,8 @@ namespace DePaso.Web.Controllers
             _dashboard = dashboard;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index(CancellationToken cancelacion)
+        [HttpGet("/Dashboard")]
+        public async Task<IActionResult> Dashboard(CancellationToken cancelacion)
         {
             var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(claim, out var usuarioId))
@@ -32,7 +32,7 @@ namespace DePaso.Web.Controllers
                 return await CerrarSesionYVolverAIngresar();
             }
 
-            return View("Dashboard", resumen);
+            return View(resumen);
         }
 
         [HttpGet]

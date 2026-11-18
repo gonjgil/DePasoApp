@@ -47,8 +47,8 @@ public class ViajesController : Controller
         _viajesApi = viajesApi;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index(string? estado)
+    [HttpGet("/Viajes")]
+    public async Task<IActionResult> MisViajes(string? estado)
     {
         if (!TryObtenerUsuarioId(out var usuarioId))
         {
@@ -90,13 +90,13 @@ public class ViajesController : Controller
         catch (HttpRequestException)
         {
             TempData["Error"] = MensajeSinApi;
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MisViajes));
         }
 
         if (viaje is null)
         {
             TempData["Error"] = "No encontramos ese viaje.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MisViajes));
         }
 
         return View(viaje);
@@ -129,13 +129,13 @@ public class ViajesController : Controller
         catch (HttpRequestException)
         {
             TempData["Error"] = MensajeSinApi;
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MisViajes));
         }
 
         if (viaje is null)
         {
             TempData["Error"] = "No encontramos ese viaje.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MisViajes));
         }
 
         return View("Nuevo", AFormulario(viaje));
@@ -190,7 +190,7 @@ public class ViajesController : Controller
         }
 
         return volverA == "lista"
-            ? RedirectToAction(nameof(Index))
+            ? RedirectToAction(nameof(MisViajes))
             : RedirectToAction(nameof(Detalle), new { id });
     }
 

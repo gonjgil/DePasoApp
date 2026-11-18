@@ -119,13 +119,13 @@ namespace DePaso.Tests.dashboard.controller
         }
 
         [Fact]
-        public async Task Index_ConUsuarioValido_DevuelveLaVistaConElResumen()
+        public async Task Dashboard_ConUsuarioValido_DevuelveLaVistaConElResumen()
         {
             var servicio = new ServicioDashboardFalso { Respuesta = ResumenVacio() };
             var auth = new AutenticacionFalsa();
             var controller = Crear(servicio, auth, Usuario("7"));
 
-            var resultado = await controller.Index(CancellationToken.None);
+            var resultado = await controller.Dashboard(CancellationToken.None);
 
             var vista = Assert.IsType<ViewResult>(resultado);
             Assert.Same(servicio.Respuesta, vista.Model);
@@ -136,26 +136,26 @@ namespace DePaso.Tests.dashboard.controller
         [Theory]
         [InlineData(null)]
         [InlineData("no-es-un-numero")]
-        public async Task Index_ConClaimInvalido_CierraSesionYVuelveAIngresar(string? claim)
+        public async Task Dashboard_ConClaimInvalido_CierraSesionYVuelveAIngresar(string? claim)
         {
             var servicio = new ServicioDashboardFalso { Respuesta = ResumenVacio() };
             var auth = new AutenticacionFalsa();
             var controller = Crear(servicio, auth, Usuario(claim));
 
-            var resultado = await controller.Index(CancellationToken.None);
+            var resultado = await controller.Dashboard(CancellationToken.None);
 
             AssertVuelveAIngresar(resultado, auth);
             Assert.Null(servicio.UsuarioIdRecibido);
         }
 
         [Fact]
-        public async Task Index_SiElUsuarioYaNoExiste_CierraSesionYVuelveAIngresar()
+        public async Task Dashboard_SiElUsuarioYaNoExiste_CierraSesionYVuelveAIngresar()
         {
             var servicio = new ServicioDashboardFalso { Respuesta = null };
             var auth = new AutenticacionFalsa();
             var controller = Crear(servicio, auth, Usuario("7"));
 
-            var resultado = await controller.Index(CancellationToken.None);
+            var resultado = await controller.Dashboard(CancellationToken.None);
 
             AssertVuelveAIngresar(resultado, auth);
             Assert.Equal(7, servicio.UsuarioIdRecibido);

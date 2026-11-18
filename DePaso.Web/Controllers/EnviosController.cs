@@ -16,8 +16,8 @@ public class EnviosController : Controller
         _enviosApi = enviosApi;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index()
+    [HttpGet("/Envios")]
+    public async Task<IActionResult> MisEnvios()
     {
         var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrWhiteSpace(usuarioId) || !int.TryParse(usuarioId, out var id))
@@ -77,7 +77,7 @@ public class EnviosController : Controller
             return View(modelo);
         }
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(MisEnvios));
     }
 
     [HttpGet]
@@ -92,7 +92,7 @@ public class EnviosController : Controller
         var envio = await _enviosApi.ObtenerPorIdAsync(id, usuario);
         if (envio is null)
         {
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(MisEnvios));
         }
 
         var modelo = new NuevoEnvioViewModel
@@ -166,7 +166,7 @@ public class EnviosController : Controller
             return View(modelo);
         }
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(MisEnvios));
     }
 
     [HttpPost]
@@ -180,7 +180,7 @@ public class EnviosController : Controller
         }
 
         await _enviosApi.BorrarAsync(id, usuario);
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(MisEnvios));
     }
 
     [HttpGet]
