@@ -178,6 +178,12 @@ a {
     --icon-position: 100%;
 }
 
+.icon-info {
+    --icon-position: 100%;
+    width: 1.3em;
+    height: 1.3em;
+    background: firebrick;
+}
 .icon-tile,
 .brand-mark {
     display: inline-grid;
