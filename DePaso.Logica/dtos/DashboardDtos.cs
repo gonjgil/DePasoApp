@@ -49,9 +49,12 @@ namespace DePaso.Logica.Dtos
 
     public sealed record PotencialMesDto(
         string Criterio,
+        string Mes,
         decimal GananciaTotal,
         decimal DesvioTotalKm,
         int CantidadEnvios,
+        int ViajesAnalizados,
+        decimal PromedioPorViaje,
         IReadOnlyList<PotencialSemanaDto> Semanas,
         PotencialRecorridoDto? MejorRecorrido);
 }

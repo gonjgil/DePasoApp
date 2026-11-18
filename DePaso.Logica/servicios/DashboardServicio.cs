@@ -1,4 +1,5 @@
-﻿using DePaso.Entidades;
+﻿using System.Globalization;
+using DePaso.Entidades;
 using DePaso.Logica.Dtos;
 using DePaso.Logica.enums;
 using DePaso.Logica.helpers;
@@ -134,14 +135,7 @@ namespace DePaso.Logica.servicios
 
     if (ocurrencias.Count == 0)
     {
-        return new PotencialMesDto(
-            criterio,
-            0m,
-            0m,
-            0,
-            new List<PotencialSemanaDto>(),
-            null
-        );
+        return DetalleVacio(criterio, hoy, 0);
     }
 
     var resultado = await CalcularOportunidadesYPotencialAsync(
@@ -200,14 +194,7 @@ namespace DePaso.Logica.servicios
                 .ToListAsync(cancelacion);
             if (candidatos.Count == 0)
             {
-                return (0, new PotencialMesDto(
-                    criterio,
-                    0m,
-                    0m,
-                    0,
-                    new List<PotencialSemanaDto>(),
-                    null
-                ));
+                return (0, DetalleVacio(criterio, hoy, ViajesDelMes(ocurrencias, hoy)));
             }
 
             var viajeIds = viajes.Select(v => v.Id).ToList();
@@ -304,22 +291,12 @@ namespace DePaso.Logica.servicios
                 }
             }
 
-            var ultimoDia = new DateOnly(
-                hoy.Year,
-                hoy.Month,
-                DateTime.DaysInMonth(hoy.Year, hoy.Month)
-            );
-
             var semanas = detalle
                 .GroupBy(d => (d.Salida.Fecha.Day - 1) / 7)
                 .OrderBy(g => g.Key)
                 .Select(g => new PotencialSemanaDto(
-                    new DateOnly(hoy.Year, hoy.Month, g.Key * 7 + 1),
-                    new DateOnly(
-                        hoy.Year,
-                        hoy.Month,
-                        Math.Min(g.Key * 7 + 7, ultimoDia.Day)
-                    ),
+                    g.Min(d => d.Salida.Fecha),
+                    g.Max(d => d.Salida.Fecha),
                     g.Sum(d => d.Combinacion.Ganancia),
                     g.Sum(d => d.Combinacion.DesvioKm),
                     g.Sum(d => d.Combinacion.Cantidad)
@@ -343,16 +320,48 @@ namespace DePaso.Logica.servicios
             .OrderByDescending(r => r.Ganancia)
             .FirstOrDefault();
 
+            var ganancia = detalle.Sum(d => d.Combinacion.Ganancia);
+            var viajesAnalizados = detalle.Select(d => d.Salida.Viaje.Id).Distinct().Count();
             var resultado = new PotencialMesDto(
                 criterio,
-                detalle.Sum(d => d.Combinacion.Ganancia),
+                NombreMes(hoy),
+                ganancia,
                 detalle.Sum(d => d.Combinacion.DesvioKm),
                 usados.Count,
+                viajesAnalizados,
+                viajesAnalizados == 0 ? 0m : ganancia / viajesAnalizados,
                 semanas,
                 mejorRecorrido
             );
 
             return (oportunidades.Count, resultado);
+        }
+
+        private static PotencialMesDto DetalleVacio(string criterio, DateOnly hoy, int viajesAnalizados) =>
+            new(
+                criterio,
+                NombreMes(hoy),
+                0m,
+                0m,
+                0,
+                viajesAnalizados,
+                0m,
+                new List<PotencialSemanaDto>(),
+                null
+            );
+
+        private static int ViajesDelMes(IReadOnlyList<Ocurrencia> ocurrencias, DateOnly hoy) =>
+            ocurrencias
+                .Where(o => o.Fecha.Year == hoy.Year && o.Fecha.Month == hoy.Month)
+                .Select(o => o.Viaje.Id)
+                .Distinct()
+                .Count();
+
+        private static string NombreMes(DateOnly hoy)
+        {
+            var cultura = CultureInfo.GetCultureInfo("es-AR");
+            var texto = hoy.ToDateTime(TimeOnly.MinValue).ToString("MMMM yyyy", cultura);
+            return cultura.TextInfo.ToTitleCase(texto);
         }
 
         private static ViajeProximoDto AViajeDto(Ocurrencia o) =>

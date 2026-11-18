@@ -24,7 +24,7 @@
         <div>
             <h1 class="page-title">Potencial del mes</h1>
             <p class="page-subtitle">
-                Estimá cuánto podés ganar con tus próximos viajes.
+                @Model.Mes. Ganancia potencial de lo que resta del mes, no es plata ya cobrada.
             </p>
         </div>
 
@@ -78,11 +78,11 @@
                 </span>
 
                 <span class="dp-stat-label">
-                    Ganancia estimada
+                    Ganancia potencial
                 </span>
 
                 <span class="dp-stat-note">
-                    Para lo que resta del mes
+                    @Moneda(Model.PromedioPorViaje) promedio por viaje
                 </span>
 
             </div>
@@ -122,11 +122,12 @@
                 </span>
 
                 <span class="dp-stat-label">
-                    Envíos potenciales
+                    Paquetes posibles
                 </span>
 
                 <span class="dp-stat-note">
-                    Envíos compatibles seleccionados
+                    @Model.ViajesAnalizados
+                    @(Model.ViajesAnalizados == 1 ? "viaje analizado" : "viajes analizados")
                 </span>
 
             </div>
@@ -238,9 +239,8 @@
     </section>
 
     <p class="text-muted small mt-3">
-        Los importes son estimaciones basadas en los envíos
-        actualmente disponibles y tus próximas salidas.
-        No representan ganancias garantizadas.
+        Es una estimación con los envíos disponibles y las salidas que quedan.
+        No es la ganancia ya cobrada.
     </p>
 
 </div>
