@@ -62,11 +62,24 @@
             </div>
         </div>
         <div class="col">
-            <div class="surface dp-stat dp-stat-highlight" data-testid="stat-potencial">
-                <span class="icon-tile"><span class="dp-icon icon-trend" aria-hidden="true"></span></span>
+
+            <div class="surface dp-stat dp-stat-highlight position-relative"
+                 data-testid="stat-potencial">
+
+                <span class="icon-tile">
+                    <span class="dp-icon icon-trend" aria-hidden="true"></span>
+                </span>
+
                 <span class="dp-stat-value">@Moneda(Model.PotencialMes)</span>
                 <span class="dp-stat-label">Potencial del mes</span>
-                <span class="dp-stat-note">Ganancia estimada</span>
+
+                <a asp-controller="Dashboard"
+                   asp-action="Potencial"
+                   class="dp-stat-note stretched-link text-decoration-none"
+                   style="color: inherit;">
+                    Ver detalle →
+                </a>
+
             </div>
         </div>
     </div>

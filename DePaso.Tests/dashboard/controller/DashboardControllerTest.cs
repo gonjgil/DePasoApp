@@ -18,12 +18,24 @@ namespace DePaso.Tests.dashboard.controller
         private sealed class ServicioDashboardFalso : IDashboardServicio
         {
             public DashboardResumenDto? Respuesta { get; set; }
+            public PotencialMesDto? RespuestaPotencial { get; set; }
             public int? UsuarioIdRecibido { get; private set; }
 
-            public Task<DashboardResumenDto?> ObtenerResumenAsync(int usuarioId, CancellationToken cancelacion = default)
+            public Task<DashboardResumenDto?> ObtenerResumenAsync(
+                int usuarioId,
+                CancellationToken cancelacion = default)
             {
                 UsuarioIdRecibido = usuarioId;
                 return Task.FromResult(Respuesta);
+            }
+
+            public Task<PotencialMesDto?> ObtenerPotencialMesAsync(
+                int usuarioId,
+                string criterio,
+                CancellationToken cancelacion = default)
+            {
+                UsuarioIdRecibido = usuarioId;
+                return Task.FromResult(RespuestaPotencial);
             }
         }
 
