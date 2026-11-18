@@ -14,6 +14,7 @@ builder.Services.AddDbContext<DePasoAppContext>(options =>
 builder.Services.AddScoped<UsuarioServicio>();
 builder.Services.AddScoped<EnvioServicio>();
 builder.Services.AddScoped<IHistorialServicio, HistorialServicio>();
+builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
 
 builder.Services.AddControllers();
 

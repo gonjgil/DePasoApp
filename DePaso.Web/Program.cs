@@ -1,10 +1,6 @@
-using DePaso.Entidades;
-using DePaso.Logica;
-using DePaso.Logica.helpers;
 using DePaso.Logica.servicios;
 using DePaso.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,13 +52,13 @@ builder.Services.AddHttpClient<HistorialApiClient>(client =>
     );
 });
 
-builder.Services.AddSingleton<IEstimadorDesvio, EstimadorDesvioHaversine>();
-builder.Services.AddSingleton<IOptimizadorCombinaciones, OptimizadorCombinaciones>();
-builder.Services.AddScoped<IDashboardServicio, DashboardServicio>();
-
-builder.Services.AddDbContext<DePasoAppContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Conexion"))
-);
+builder.Services.AddHttpClient<IDashboardServicio, DashboardApiClient>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ApiUrl"]
+            ?? throw new InvalidOperationException("No se configuró ApiUrl.")
+    );
+});
 
 builder
     .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
