@@ -128,6 +128,11 @@ public class EnvioServicio
             return null;
         }
 
+        if (envio.Estado != (byte)EstadoEnvio.BuscandoConductor)
+        {
+            return null;
+        }
+
         envio.OrigenCalle = origenCalle;
         envio.OrigenAltura = origenAltura;
         envio.OrigenPiso = origenPiso;
@@ -159,13 +164,31 @@ public class EnvioServicio
         var envio = await _context.Envios.FirstOrDefaultAsync(e =>
             e.Id == id && e.UsuarioId == usuarioId
         );
+
         if (envio is null)
         {
             return false;
         }
 
-        _context.Envios.Remove(envio);
+        if (envio.Estado != (byte)EstadoEnvio.BuscandoConductor)
+        {
+            return false;
+        }
+
+        var estadoAnterior = envio.Estado;
+
+        envio.Estado = (byte)EstadoEnvio.Cancelado;
+
+        _context.EnvioEstadoHistoria.Add(new EnvioEstadoHistoria
+        {
+            EnvioId = envio.Id,
+            EstadoAnterior = estadoAnterior,
+            EstadoNuevo = envio.Estado,
+            Fecha = DateTime.Now
+        });
+
         await _context.SaveChangesAsync();
+
         return true;
     }
 }

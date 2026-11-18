@@ -1,8 +1,9 @@
-using System.Globalization;
 using DePaso.Api.Models;
 using DePaso.Api.Services;
 using DePaso.Logica;
+using DePaso.Logica.enums;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace DePaso.Api.Controllers;
 
@@ -214,9 +215,18 @@ public class EnviosController : Controller
         }
 
         var actual = await _envios.ObtenerPorId(id);
-        if (actual is null)
+
+        if (actual is null || actual.UsuarioId != modelo.UsuarioId)
         {
             return NotFound(new { mensaje = "Envío no encontrado." });
+        }
+
+        if (actual.Estado != (byte)EstadoEnvio.BuscandoConductor)
+        {
+            return Conflict(new
+            {
+                mensaje = "No se puede editar un envío que ya tiene conductor o dejó de estar disponible."
+            });
         }
 
         var (origen, destino) = (modelo.Origen, modelo.Destino);
@@ -315,6 +325,21 @@ public class EnviosController : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> Borrar(int id, [FromQuery] int usuarioId)
     {
+        var actual = await _envios.ObtenerPorId(id);
+
+        if (actual is null || actual.UsuarioId != usuarioId)
+        {
+            return NotFound(new { mensaje = "Envío no encontrado." });
+        }
+
+        if (actual.Estado != (byte)EstadoEnvio.BuscandoConductor)
+        {
+            return Conflict(new
+            {
+                mensaje = "No se puede eliminar un envío que ya tiene conductor o dejó de estar disponible."
+            });
+        }
+
         var eliminado = await _envios.Borrar(id, usuarioId);
 
         if (!eliminado)
@@ -322,7 +347,7 @@ public class EnviosController : Controller
             return NotFound(new { mensaje = "Envío no encontrado." });
         }
 
-        return Ok(new { mensaje = "Envío eliminado." });
+        return Ok(new { mensaje = "Envío cancelado correctamente." });
     }
 
     private async Task<DireccionGeoapify?> BuscarDireccionAsync(
