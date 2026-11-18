@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DePaso.Logica;
 
+/// <summary>
+/// Gestiona el registro y la autenticación de usuarios mediante hashes PBKDF2 con salt aleatorio.
+/// </summary>
 public class UsuarioServicio
 {
     private readonly DePasoAppContext _context;
@@ -13,6 +16,10 @@ public class UsuarioServicio
         _context = context;
     }
 
+    /// <summary>
+    /// Registra un usuario nuevo si el email aún no existe.
+    /// </summary>
+    /// <returns>El usuario creado y un error vacío, o usuario nulo y un mensaje de conflicto.</returns>
     public async Task<(Usuarios? Usuario, string? Error)> Registrar(string nombre, string apellido, string email, string contrasena)
     {
         var correo = email.Trim();
@@ -36,6 +43,10 @@ public class UsuarioServicio
         return (usuario, null);
     }
 
+    /// <summary>
+    /// Valida las credenciales de un usuario por email y contraseña.
+    /// </summary>
+    /// <returns>El usuario encontrado o <see langword="null"/> si las credenciales son incorrectas.</returns>
     public async Task<Usuarios?> Ingresar(string email, string contrasena)
     {
         var correo = email.Trim();
