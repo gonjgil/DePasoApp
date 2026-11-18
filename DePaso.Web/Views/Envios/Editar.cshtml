@@ -25,7 +25,7 @@
                             </div>
                             <div class="col-5 col-sm-4">
                                 <label asp-for="OrigenAltura" class="form-label">Altura</label>
-                                <input asp-for="OrigenAltura" class="form-control" type="number" min="1" step="1" />
+                                <input asp-for="OrigenAltura" class="form-control" type="number" />
                                 <span asp-validation-for="OrigenAltura" class="text-danger"></span>
                             </div>
                             <div class="col-12 col-sm-6">
@@ -66,7 +66,7 @@
                             </div>
                             <div class="col-5 col-sm-4">
                                 <label asp-for="DestinoAltura" class="form-label">Altura</label>
-                                <input asp-for="DestinoAltura" class="form-control" type="number" min="1" step="1" />
+                                    <input asp-for="DestinoAltura" class="form-control" type="number" />
                                 <span asp-validation-for="DestinoAltura" class="text-danger"></span>
                             </div>
                             <div class="col-12 col-sm-6">
@@ -99,7 +99,7 @@
             <div class="row g-3">
                         <div class="col-md-4">
                             <label asp-for="Tamanio" class="form-label">
-                                Tamaño (m³)
+                                Tamaño (m)
                                 <span class="dp-icon icon-info" data-bs-toggle="tooltip" data-bs-placement="top"
                                       title="Registrá la medida aproximada del paquete en m³.">
                                 </span>

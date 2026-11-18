@@ -25,7 +25,7 @@
                             </div>
                             <div class="col-5 col-sm-4">
                                 <label asp-for="OrigenAltura" class="form-label">Altura</label>
-                                <input asp-for="OrigenAltura" class="form-control" type="number" min="1" step="1" />
+                                <input asp-for="OrigenAltura" class="form-control" type="number"/>
                                 <span asp-validation-for="OrigenAltura" class="text-danger"></span>
                             </div>
                             <div class="col-12 col-sm-6">
@@ -64,11 +64,11 @@
                                 <div id="DestinoEstadoCalle" class="small text-muted" aria-live="polite"></div>
                                 <span asp-validation-for="DestinoCalle" class="text-danger"></span>
                             </div>
-                            <div class="col-5 col-sm-4">
-                                <label asp-for="DestinoAltura" class="form-label">Altura</label>
-                                <input asp-for="DestinoAltura" class="form-control" type="number" min="1" step="1" />
-                                <span asp-validation-for="DestinoAltura" class="text-danger"></span>
-                            </div>
+                                <div class="col-5 col-sm-4">
+                                    <label asp-for="DestinoAltura" class="form-label">Altura</label>
+                                    <input asp-for="DestinoAltura" class="form-control" type="number" />
+                                    <span asp-validation-for="DestinoAltura" class="text-danger"></span>
+                                </div>
                             <div class="col-12 col-sm-6">
                                 <label asp-for="DestinoLocalidad" class="form-label">Localidad</label>
                                 <input asp-for="DestinoLocalidad" class="form-control" maxlength="100" readonly />
