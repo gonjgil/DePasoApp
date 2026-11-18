@@ -18,12 +18,26 @@ namespace DePaso.Tests.dashboard.controller
         private sealed class ServicioDashboardFalso : IDashboardServicio
         {
             public DashboardResumenDto? Respuesta { get; set; }
+            public PotencialMesDto? RespuestaPotencial { get; set; }
             public int? UsuarioIdRecibido { get; private set; }
+            public string? CriterioRecibido { get; private set; }
 
-            public Task<DashboardResumenDto?> ObtenerResumenAsync(int usuarioId, CancellationToken cancelacion = default)
+            public Task<DashboardResumenDto?> ObtenerResumenAsync(
+                int usuarioId,
+                CancellationToken cancelacion = default)
             {
                 UsuarioIdRecibido = usuarioId;
                 return Task.FromResult(Respuesta);
+            }
+
+            public Task<PotencialMesDto?> ObtenerPotencialMesAsync(
+                int usuarioId,
+                string criterio,
+                CancellationToken cancelacion = default)
+            {
+                UsuarioIdRecibido = usuarioId;
+                CriterioRecibido = criterio;
+                return Task.FromResult(RespuestaPotencial);
             }
         }
 
@@ -142,6 +156,38 @@ namespace DePaso.Tests.dashboard.controller
             var controller = Crear(servicio, auth, Usuario("7"));
 
             var resultado = await controller.Index(CancellationToken.None);
+
+            AssertVuelveAIngresar(resultado, auth);
+            Assert.Equal(7, servicio.UsuarioIdRecibido);
+        }
+
+        [Fact]
+        public async Task Potencial_ConUsuarioValido_DevuelveLaVista()
+        {
+            var potencial = new PotencialMesDto(
+                "desvio", "Noviembre 2026", 0m, 0m, 0, 0, 0m, Array.Empty<PotencialSemanaDto>(), null);
+            var servicio = new ServicioDashboardFalso { RespuestaPotencial = potencial };
+            var auth = new AutenticacionFalsa();
+            var controller = Crear(servicio, auth, Usuario("7"));
+
+            var resultado = await controller.Potencial("desvio", CancellationToken.None);
+
+            var vista = Assert.IsType<ViewResult>(resultado);
+            Assert.Equal("Potencial", vista.ViewName);
+            Assert.Same(potencial, vista.Model);
+            Assert.Equal(7, servicio.UsuarioIdRecibido);
+            Assert.Equal("desvio", servicio.CriterioRecibido);
+            Assert.False(auth.SignOutLlamado);
+        }
+
+        [Fact]
+        public async Task Potencial_SiElUsuarioYaNoExiste_CierraSesionYVuelveAIngresar()
+        {
+            var servicio = new ServicioDashboardFalso { RespuestaPotencial = null };
+            var auth = new AutenticacionFalsa();
+            var controller = Crear(servicio, auth, Usuario("7"));
+
+            var resultado = await controller.Potencial("ganancia", CancellationToken.None);
 
             AssertVuelveAIngresar(resultado, auth);
             Assert.Equal(7, servicio.UsuarioIdRecibido);

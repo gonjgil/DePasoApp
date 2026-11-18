@@ -15,5 +15,7 @@
     public interface IOptimizadorCombinaciones
     {
         CombinacionOptima Optimizar(IReadOnlyList<CandidatoEnvio> candidatos, LimitesViaje limites);
+
+        CombinacionOptima Optimizar(IReadOnlyList<CandidatoEnvio> candidatos, LimitesViaje limites, string criterio);
     }
 }

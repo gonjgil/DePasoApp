@@ -1,0 +1,246 @@
+﻿@model DePaso.Logica.Dtos.PotencialMesDto
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Potencial del mes";
+    var es = CultureInfo.GetCultureInfo("es-AR");
+
+    string Moneda(decimal monto) => monto.ToString("C0", es);
+
+    var maximoSemanal = Model.Semanas
+        .Select(s => s.Ganancia)
+        .DefaultIfEmpty(0m)
+        .Max();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/viaje.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dashboard.css" asp-append-version="true" />
+}
+
+<div class="form-page viaje-pagina">
+
+    <header class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="page-title">Potencial del mes</h1>
+            <p class="page-subtitle">
+                @Model.Mes. Ganancia potencial de lo que resta del mes, no es plata ya cobrada.
+            </p>
+        </div>
+
+        <a asp-controller="Dashboard"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Volver al inicio
+        </a>
+    </header>
+
+    <section class="viaje-bloque form-section mb-3">
+        <h2 class="section-heading">
+            <span class="dp-icon icon-route" aria-hidden="true"></span>
+            Criterio de optimización
+        </h2>
+
+        <div class="d-flex flex-wrap gap-2">
+
+            <a asp-action="Potencial"
+               asp-route-criterio="ganancia"
+               class="btn @(Model.Criterio == "ganancia" ? "btn-primary" : "btn-outline-primary")">
+                Maximizar ganancias
+            </a>
+
+            <a asp-action="Potencial"
+               asp-route-criterio="desvio"
+               class="btn @(Model.Criterio == "desvio" ? "btn-primary" : "btn-outline-primary")">
+                Minimizar desvíos
+            </a>
+
+            <a asp-action="Potencial"
+               asp-route-criterio="equilibrio"
+               class="btn @(Model.Criterio == "equilibrio" ? "btn-primary" : "btn-outline-primary")">
+                Equilibrio
+            </a>
+
+        </div>
+    </section>
+
+    <div class="row g-3 mb-3">
+
+        <div class="col-12 col-md-4">
+            <div class="surface dp-stat dp-stat-highlight h-100">
+
+                <span class="icon-tile">
+                    <span class="dp-icon icon-trend" aria-hidden="true"></span>
+                </span>
+
+                <span class="dp-stat-value">
+                    @Moneda(Model.GananciaTotal)
+                </span>
+
+                <span class="dp-stat-label">
+                    Ganancia potencial
+                </span>
+
+                <span class="dp-stat-note">
+                    @Moneda(Model.PromedioPorViaje) promedio por viaje
+                </span>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="surface dp-stat h-100">
+
+                <span class="icon-tile">
+                    <span class="dp-icon icon-route" aria-hidden="true"></span>
+                </span>
+
+                <span class="dp-stat-value">
+                    @Model.DesvioTotalKm.ToString("0.00", es) km
+                </span>
+
+                <span class="dp-stat-label">
+                    Desvío total estimado
+                </span>
+
+                <span class="dp-stat-note">
+                    Distancia adicional
+                </span>
+
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="surface dp-stat h-100">
+
+                <span class="icon-tile">
+                    <span class="dp-icon icon-package" aria-hidden="true"></span>
+                </span>
+
+                <span class="dp-stat-value">
+                    @Model.CantidadEnvios
+                </span>
+
+                <span class="dp-stat-label">
+                    Paquetes posibles
+                </span>
+
+                <span class="dp-stat-note">
+                    @Model.ViajesAnalizados
+                    @(Model.ViajesAnalizados == 1 ? "viaje analizado" : "viajes analizados")
+                </span>
+
+            </div>
+        </div>
+
+    </div>
+
+    <section class="viaje-bloque form-section mb-3">
+
+        <h2 class="section-heading">
+            <span class="dp-icon icon-calendar" aria-hidden="true"></span>
+            Desglose semanal
+        </h2>
+
+        @if (Model.Semanas.Count == 0)
+        {
+            <p class="dp-empty">
+                No hay oportunidades disponibles para este período.
+            </p>
+        }
+        else
+        {
+            @foreach (var semana in Model.Semanas)
+            {
+                var porcentaje = maximoSemanal > 0
+                    ? semana.Ganancia / maximoSemanal * 100
+                    : 0;
+
+                <div class="mb-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+
+                        <strong>
+                            @semana.Desde.ToString("dd/MM")
+                            -
+                            @semana.Hasta.ToString("dd/MM")
+                        </strong>
+
+                        <strong style="color: #20634b;">
+                            @Moneda(semana.Ganancia)
+                        </strong>
+
+                    </div>
+
+                    <div class="progress"
+                         style="height: 12px; border-radius: 20px; background-color: #e8eee9;">
+
+                        <div class="progress-bar"
+                             style="background-color: #20634b;
+                                    border-radius: 20px;
+                                    width: @(porcentaje.ToString("0.##", CultureInfo.InvariantCulture))%;">
+                        </div>
+
+                    </div>
+
+                    <small class="text-muted">
+                        @semana.CantidadEnvios
+                        @(semana.CantidadEnvios == 1 ? "envío" : "envíos")
+                        &middot;
+                        @semana.DesvioKm.ToString("0.00", es) km de desvío
+                    </small>
+
+                </div>
+            }
+        }
+
+    </section>
+
+    <section class="viaje-bloque form-section mb-3">
+
+        <h2 class="section-heading">
+            <span class="dp-icon icon-map" aria-hidden="true"></span>
+            Recorrido que más aporta
+        </h2>
+
+        @if (Model.MejorRecorrido != null)
+        {
+            <div class="d-flex align-items-start gap-3">
+
+                <span class="icon-tile">
+                    <span class="dp-icon icon-route" aria-hidden="true"></span>
+                </span>
+
+                <div>
+                    <div class="dp-item-title">
+                        @Model.MejorRecorrido.Origen
+                        &rarr;
+                        @Model.MejorRecorrido.Destino
+                    </div>
+
+                    <div class="dp-stat-value mt-2" style="color: #20634b;">
+                        @Moneda(Model.MejorRecorrido.Ganancia)
+                    </div>
+
+                    <small class="text-muted">
+                        Ganancia potencial del recorrido
+                    </small>
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <p class="dp-empty">
+                No hay recorridos con ganancias potenciales.
+            </p>
+        }
+
+    </section>
+
+    <p class="text-muted small mt-3">
+        Es una estimación con los envíos disponibles y las salidas que quedan.
+        No es la ganancia ya cobrada.
+    </p>
+
+</div>

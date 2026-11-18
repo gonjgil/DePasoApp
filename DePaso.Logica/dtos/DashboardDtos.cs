@@ -33,4 +33,28 @@ namespace DePaso.Logica.Dtos
         decimal PotencialMes,
         IReadOnlyList<ViajeProximoDto> ListaProximosViajes,
         IReadOnlyList<EnvioPendienteDto> ListaEnviosPendientes);
+
+    public sealed record PotencialSemanaDto(
+    DateOnly Desde,
+    DateOnly Hasta,
+    decimal Ganancia,
+    decimal DesvioKm,
+    int CantidadEnvios);
+
+    public sealed record PotencialRecorridoDto(
+        int ViajeId,
+        string Origen,
+        string Destino,
+        decimal Ganancia);
+
+    public sealed record PotencialMesDto(
+        string Criterio,
+        string Mes,
+        decimal GananciaTotal,
+        decimal DesvioTotalKm,
+        int CantidadEnvios,
+        int ViajesAnalizados,
+        decimal PromedioPorViaje,
+        IReadOnlyList<PotencialSemanaDto> Semanas,
+        PotencialRecorridoDto? MejorRecorrido);
 }

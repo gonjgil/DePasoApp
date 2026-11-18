@@ -1,4 +1,5 @@
-﻿using DePaso.Entidades;
+﻿using System.Globalization;
+using DePaso.Entidades;
 using DePaso.Logica.Dtos;
 using DePaso.Logica.enums;
 using DePaso.Logica.helpers;
@@ -67,13 +68,16 @@ namespace DePaso.Logica.servicios
             var potencial = 0m;
             if (ocurrencias.Count > 0)
             {
-                (oportunidades, potencial) = await CalcularOportunidadesYPotencialAsync(
-                    usuarioId,
-                    viajes,
-                    ocurrencias,
-                    hoy,
-                    cancelacion
-                );
+                var resultado = await CalcularOportunidadesYPotencialAsync(
+                usuarioId,
+                viajes,
+                ocurrencias,
+                hoy,
+                cancelacion
+            );
+
+                oportunidades = resultado.Oportunidades;
+                potencial = resultado.Detalle.GananciaTotal;
             }
 
             return new DashboardResumenDto(
@@ -89,7 +93,62 @@ namespace DePaso.Logica.servicios
                     .ToList()
             );
         }
+        public async Task<PotencialMesDto?> ObtenerPotencialMesAsync(
+    int usuarioId,
+    string criterio,
+    CancellationToken cancelacion = default)
+{
+    var existeUsuario = await _context.Usuarios
+        .AnyAsync(u => u.Id == usuarioId, cancelacion);
 
+    if (!existeUsuario)
+    {
+        return null;
+    }
+
+    criterio = criterio?.Trim().ToLowerInvariant() ?? "ganancia";
+
+    if (criterio != "ganancia" &&
+        criterio != "desvio" &&
+        criterio != "equilibrio")
+    {
+        criterio = "ganancia";
+    }
+
+    var ahora = _reloj.GetLocalNow().DateTime;
+    var hoy = DateOnly.FromDateTime(ahora);
+    var horaActual = TimeOnly.FromDateTime(ahora);
+
+    var viajes = await _context.Viajes
+        .AsNoTracking()
+        .Include(v => v.ViajeDia)
+        .Include(v => v.Paradas)
+        .Where(v => v.UsuarioId == usuarioId && v.Activo == true)
+        .ToListAsync(cancelacion);
+
+    var ocurrencias = ReglasCoincidencia.GenerarOcurrencias(
+        viajes,
+        hoy,
+        horaActual,
+        DIAS_VENTANA
+    );
+
+    if (ocurrencias.Count == 0)
+    {
+        return DetalleVacio(criterio, hoy, 0);
+    }
+
+    var resultado = await CalcularOportunidadesYPotencialAsync(
+        usuarioId,
+        viajes,
+        ocurrencias,
+        hoy,
+        cancelacion,
+        criterio
+    );
+
+    return resultado.Detalle;
+}
         private async Task<List<Envios>> ObtenerEnviosPendientesAsync(
             int usuarioId,
             CancellationToken cancelacion
@@ -110,13 +169,14 @@ namespace DePaso.Logica.servicios
 
         private async Task<(
             int Oportunidades,
-            decimal Potencial
+            PotencialMesDto Detalle
         )> CalcularOportunidadesYPotencialAsync(
             int usuarioId,
             IReadOnlyList<Viajes> viajes,
             IReadOnlyList<Ocurrencia> ocurrencias,
             DateOnly hoy,
-            CancellationToken cancelacion
+            CancellationToken cancelacion,
+            string criterio = "ganancia"
         )
         {
             var buscando = (byte)EstadoEnvio.BuscandoConductor;
@@ -134,7 +194,7 @@ namespace DePaso.Logica.servicios
                 .ToListAsync(cancelacion);
             if (candidatos.Count == 0)
             {
-                return (0, 0m);
+                return (0, DetalleVacio(criterio, hoy, ViajesDelMes(ocurrencias, hoy)));
             }
 
             var viajeIds = viajes.Select(v => v.Id).ToList();
@@ -200,23 +260,108 @@ namespace DePaso.Logica.servicios
                 }
             }
 
-            var potencial = 0m;
             var usados = new HashSet<int>();
+
+            var detalle = new List<(
+                Ocurrencia Salida,
+                CombinacionOptima Combinacion
+            )>();
+
             var delMes = ocurrencias.Where(o =>
-                o.Fecha.Year == hoy.Year && o.Fecha.Month == hoy.Month
+                o.Fecha.Year == hoy.Year &&
+                o.Fecha.Month == hoy.Month
             );
+
             foreach (var o in delMes)
             {
                 var limites = Restantes(o);
-                var combinacion = _optimizador.Optimizar(Elegibles(o, limites, usados), limites);
-                potencial += combinacion.Ganancia;
+
+                var combinacion = OptimizadorPotencial.Optimizar(
+                    Elegibles(o, limites, usados),
+                    limites,
+                    criterio,
+                    _optimizador
+                );
+
+                detalle.Add((o, combinacion));
+
                 foreach (var c in combinacion.Envios)
                 {
                     usados.Add(c.EnvioId);
                 }
             }
 
-            return (oportunidades.Count, potencial);
+            var semanas = detalle
+                .GroupBy(d => (d.Salida.Fecha.Day - 1) / 7)
+                .OrderBy(g => g.Key)
+                .Select(g => new PotencialSemanaDto(
+                    g.Min(d => d.Salida.Fecha),
+                    g.Max(d => d.Salida.Fecha),
+                    g.Sum(d => d.Combinacion.Ganancia),
+                    g.Sum(d => d.Combinacion.DesvioKm),
+                    g.Sum(d => d.Combinacion.Cantidad)
+                ))
+                .ToList();
+
+            var mejorRecorrido = detalle
+            .Where(d => d.Combinacion.Cantidad > 0)
+            .GroupBy(d => d.Salida.Viaje.Id)
+            .Select(g =>
+            {
+                var viaje = g.First().Salida.Viaje;
+
+                return new PotencialRecorridoDto(
+                    g.Key,
+                    $"{viaje.OrigenCalle} {viaje.OrigenAltura}, {viaje.OrigenLocalidad}, {viaje.OrigenProvincia}",
+                    $"{viaje.DestinoCalle} {viaje.DestinoAltura}, {viaje.DestinoLocalidad}, {viaje.DestinoProvincia}",
+                    g.Sum(d => d.Combinacion.Ganancia)
+                );
+            })
+            .OrderByDescending(r => r.Ganancia)
+            .FirstOrDefault();
+
+            var ganancia = detalle.Sum(d => d.Combinacion.Ganancia);
+            var viajesAnalizados = detalle.Select(d => d.Salida.Viaje.Id).Distinct().Count();
+            var resultado = new PotencialMesDto(
+                criterio,
+                NombreMes(hoy),
+                ganancia,
+                detalle.Sum(d => d.Combinacion.DesvioKm),
+                usados.Count,
+                viajesAnalizados,
+                viajesAnalizados == 0 ? 0m : ganancia / viajesAnalizados,
+                semanas,
+                mejorRecorrido
+            );
+
+            return (oportunidades.Count, resultado);
+        }
+
+        private static PotencialMesDto DetalleVacio(string criterio, DateOnly hoy, int viajesAnalizados) =>
+            new(
+                criterio,
+                NombreMes(hoy),
+                0m,
+                0m,
+                0,
+                viajesAnalizados,
+                0m,
+                new List<PotencialSemanaDto>(),
+                null
+            );
+
+        private static int ViajesDelMes(IReadOnlyList<Ocurrencia> ocurrencias, DateOnly hoy) =>
+            ocurrencias
+                .Where(o => o.Fecha.Year == hoy.Year && o.Fecha.Month == hoy.Month)
+                .Select(o => o.Viaje.Id)
+                .Distinct()
+                .Count();
+
+        private static string NombreMes(DateOnly hoy)
+        {
+            var cultura = CultureInfo.GetCultureInfo("es-AR");
+            var texto = hoy.ToDateTime(TimeOnly.MinValue).ToString("MMMM yyyy", cultura);
+            return cultura.TextInfo.ToTitleCase(texto);
         }
 
         private static ViajeProximoDto AViajeDto(Ocurrencia o) =>

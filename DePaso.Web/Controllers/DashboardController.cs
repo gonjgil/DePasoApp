@@ -35,6 +35,29 @@ namespace DePaso.Web.Controllers
             return View("Dashboard", resumen);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Potencial(string criterio = "ganancia",CancellationToken cancelacion = default)
+        {
+            var claim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!int.TryParse(claim, out var usuarioId))
+            {
+                return await CerrarSesionYVolverAIngresar();
+            }
+
+            var potencial = await _dashboard.ObtenerPotencialMesAsync(
+                usuarioId,
+                criterio,
+                cancelacion
+            );
+
+            if (potencial == null)
+            {
+                return await CerrarSesionYVolverAIngresar();
+            }
+
+            return View("Potencial", potencial);
+        }
         private async Task<IActionResult> CerrarSesionYVolverAIngresar()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
